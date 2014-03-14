@@ -26,4 +26,6 @@ public:
 protected:
 	sf::Time mTriggerNextDecision;
 	float mEnemySpeed;
+
+	sf::Vector2f mDecidedDirection;
 };
