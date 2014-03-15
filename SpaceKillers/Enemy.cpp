@@ -168,11 +168,13 @@ void Enemy::StayInBounds()
 	const sf::FloatRect newEnemyRect = getGlobalBounds();
 	const float minSpeedForEdgeAvoid = .25f;
 
+	// check for off left
 	if(newEnemyRect.left < 0.0f)
 		{
 		mDecidedDirection.x = std::max( 0.5f, std::abs(mDecidedDirection.x));
 		mDecidedDirection.y = std::max( 0.25f, mDecidedDirection.y );
 		}
+	// check for off right
 	if(newEnemyRect.left + newEnemyRect.width >= gpGame->GetWindow().getSize().x)
 		{
 		mDecidedDirection.x = -std::max( 0.5f, std::abs(mDecidedDirection.x));
