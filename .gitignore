@@ -5,9 +5,7 @@
 *.suo
 *.user
 *.sln.docstates
-*.vcxproj
-*.filters
-*.user
+
 
 # Build results
 [Dd]ebug/
