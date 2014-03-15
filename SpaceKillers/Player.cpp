@@ -20,11 +20,11 @@ Player::~Player()
 
 void Player::Update()
 	{
-	const float playerSpeed = 100.0f;
+	const float playerSpeed = 250.0f;
 	float playerBoost;
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
 		{
-		playerBoost = 2.0f;
+		playerBoost = 1.5f;
 		}
 	else
 		{

@@ -23,7 +23,20 @@ void Enemy::Update()
 	const sf::Time & frameStamp = gpGame->GetFrameTimeStamp();
 
 	// get the direction to evade if there is nothing to evade EvadeDir::Null is returned.
-	EvadeDir evadeDir = GetEvadeDirection();
+	const EvadeDir evadeDir = GetEvadeDirection();
+	const sf::FloatRect enemyRect( getGlobalBounds() );
+	const sf::Vector2u windowSize( gpGame->GetWindow().getSize() );
+	const sf::FloatRect playerRect( gpGame->GetPlayer().getGlobalBounds() );
+
+	// this rect represents the area the enemy considers the player in his sights.
+	const float growWidth = 2.0f * enemyRect.width;
+	
+	const sf::FloatRect areaOfAttack(enemyRect.left - (growWidth / 2.0f),
+									 enemyRect.top,
+									 enemyRect.width + growWidth,
+									 windowSize.y - enemyRect.top );
+
+	bool isPlayerInAreaOfAttack = areaOfAttack.intersects(playerRect);
 
 	if ( evadeDir != EvadeDir::Null )
 		{
@@ -42,48 +55,60 @@ void Enemy::Update()
 		}
 	else
 		{
-		// since there was nothing to evade, do random decisions and keep moving in a general
-		// downward direction.
-		if ( mTriggerNextDecision.asSeconds() <= frameStamp.asSeconds() )
+		if ( isPlayerInAreaOfAttack )
 			{
-			mDecidedDirection.x = Random::FloatBetween(-1.0f, 1.0f);
-			mDecidedDirection.y = Random::FloatBetween(0.5f, 1.0f);
-			mTriggerNextDecision = frameStamp + sf::seconds(Random::FloatBetween(0.5f, 2.0f));
+			//sf::FloatRect enemyRect = getGlobalBounds();
+			if ( areaOfAttack.left + (areaOfAttack.width / 2.0f) <= playerRect.left + (playerRect.width / 2.0f))
+				{
+				mDecidedDirection.x = Random::FloatBetween(0.5f, 1.0f );
+				}
+			else
+				{
+				mDecidedDirection.x = -Random::FloatBetween(0.5f, 1.0f);
+				}
+			}
+		else
+			{
+			// since there was nothing to evade, do random decisions and keep moving in a general
+			// downward direction.
+			if ( mTriggerNextDecision <= frameStamp )
+				{
+				mDecidedDirection.x = Random::FloatBetween(-1.0f, 1.0f);
+				mDecidedDirection.y = Random::FloatBetween(0.5f, 1.0f);
+				mTriggerNextDecision = frameStamp + sf::seconds(Random::FloatBetween(0.5f, 2.0f));
+				}
 			}
 		move(mDecidedDirection * mEnemySpeed * frameDelta.asSeconds());
 		}
 
 	// check out of bounds tell enemy to move inwards
-	const sf::FloatRect & enemyRect = getGlobalBounds();
+	const sf::FloatRect newEnemyRect = getGlobalBounds();
 	const float minSpeedForEdgeEvoid = .25f;
 
-	if ( enemyRect.left < 0.0f )
+	if(newEnemyRect.left < 0.0f)
 		{
 		mDecidedDirection.x = 1.0f;
 		}
-	if ( enemyRect.left + enemyRect.width > gpGame->GetWindow().getSize().y )
+	if(newEnemyRect.left + newEnemyRect.width >= windowSize.x)
 		{
 		mDecidedDirection.x = -1.0f;
 		}
 
 	// shooting code.
-	sf::FloatRect areaOfAttack = getGlobalBounds();
-	float growWidth = areaOfAttack.width * 2.0f;
-	areaOfAttack.width += growWidth;
-	areaOfAttack.left -= growWidth / 2.0f;
-	areaOfAttack.height = gpGame->GetWindow().getSize().y - areaOfAttack.top;
-
-	if ( areaOfAttack.intersects( gpGame->GetPlayer().getGlobalBounds() ) )
+	
+	if ( isPlayerInAreaOfAttack )
 		{
+		// shoot as fast as it can
 		Shoot();
-		mTriggerNextRandomShot = gpGame->GetFrameTimeStamp() + sf::seconds(Random::FloatBetween(.5f, 3.5f));
+		mTriggerNextRandomShot = frameStamp + sf::seconds(Random::FloatBetween(.5f, 3.5f));
 		}
 	else
 		{
-		if ( mTriggerNextRandomShot <= gpGame->GetFrameTimeStamp() )
+		// shoot random slower shots
+		if(mTriggerNextRandomShot <= frameStamp)
 			{
 			Shoot();
-			mTriggerNextRandomShot = gpGame->GetFrameTimeStamp() + sf::seconds( Random::FloatBetween(.5f, 3.5f) );
+			mTriggerNextRandomShot = frameStamp + sf::seconds(Random::FloatBetween(.5f, 3.5f));
 			}
 		}
 

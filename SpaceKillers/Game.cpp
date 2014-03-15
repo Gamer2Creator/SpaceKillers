@@ -218,7 +218,7 @@ void Game::UpdateEnemies()
 void Game::UpdateLasers()
 	{
 	// move lasers
-	const float playerLaserSpeed(500.f);
+	const float playerLaserSpeed(750.f);
 	// Erase the lasers if they are off the play area completely on top and bottom
 	// if not erased then move them.
 	for(int i = 0; i < mLasersPlayer.size(); ++i)
