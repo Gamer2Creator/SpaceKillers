@@ -36,7 +36,7 @@ Game::Game()
 		throw std::runtime_error("Game singleton violated.");
 	else
 		gpGame = this;
-	gTwister.seed( time(nullptr) );
+	gTwister.seed( unsigned long(time(nullptr)) );
 
 	mWindow.create(sf::VideoMode(800, 600), "Space Killers");
 
@@ -52,7 +52,7 @@ Game::~Game()
 void Game::ResetGame()
 	{
 	mPlayer.SetScore(0);
-	mPlayer.setPosition( mWindow.getSize().x / 2, mWindow.getSize().y / 4 * 3);
+	mPlayer.setPosition( float(mWindow.getSize().x / 2), float(mWindow.getSize().y / 4 * 3));
 	mEnemies.clear();
 	mLasersPlayer.clear();
 	mLasersEnemy.clear();
@@ -181,7 +181,7 @@ void Game::UpdateEnemies()
 	// levels are handled by the score
 	// base max enemies is 2, for every scoreRatio in points
 	// another max enemy is added.
-	int maxEnemies = 2;
+	unsigned int maxEnemies = 2;
 	int scoreRatio = 1000;
 	int playerScore = mPlayer.GetScore();
 	
@@ -222,7 +222,7 @@ void Game::UpdateLasers()
 	const float playerLaserSpeed(750.f);
 	// Erase the lasers if they are off the play area completely on top and bottom
 	// if not erased then move them.
-	for(int i = 0; i < mLasersPlayer.size(); ++i)
+	for(unsigned int i = 0; i < mLasersPlayer.size(); ++i)
 		{
 		// top remove code
 		const sf::FloatRect & laserBounds( mLasersPlayer[i].getGlobalBounds() );
@@ -241,7 +241,7 @@ void Game::UpdateLasers()
 		mLasersPlayer[i].move(0.0f, -playerLaserSpeed * mFrameDelta.asSeconds());
 		}
 
-	for(int i = 0; i < mLasersEnemy.size(); ++i )
+	for(unsigned int i = 0; i < mLasersEnemy.size(); ++i )
 		{
 		const sf::FloatRect & laserBounds( mLasersEnemy[i].getGlobalBounds() );
 		if(laserBounds.top + laserBounds.height < 0.0f )

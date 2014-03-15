@@ -10,6 +10,7 @@ Explosion::Explosion(const sf::Time timeLength,
 	:
 	mAnimationLength(timeLength),
 	mAnimationStart(gpGame->GetFrameTimeStamp()),
+	mFrameCurrent(0),
 	mFramesCountWidth(framesCountWidth),
 	mFramesCountHeight(framesCountHeight),
 	mFrameWidthHeightPixels(frameWidthHeightPixels)
@@ -27,12 +28,12 @@ void Explosion::UpdateAnimation()
 	{
 	sf::Time animationPosition = gpGame->GetFrameTimeStamp() - mAnimationStart;
 
-	const long long posInt = animationPosition.asMilliseconds();
-	const long long maxInt = mAnimationLength.asMilliseconds();
+	const int posInt = animationPosition.asMilliseconds();
+	const int maxInt = mAnimationLength.asMilliseconds();
 
-	const long long timePerFrame = maxInt / (mFramesCountWidth * mFramesCountHeight);
+	const int timePerFrame = maxInt / (mFramesCountWidth * mFramesCountHeight);
 	
-	const long long frame = posInt / timePerFrame;
+	const int frame = posInt / timePerFrame;
 
 	sf::IntRect rect;
 	rect.height = rect.width = mFrameWidthHeightPixels;

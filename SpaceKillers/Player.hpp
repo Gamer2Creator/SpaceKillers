@@ -1,5 +1,6 @@
 #pragma once
 #include "SFML/Graphics/Sprite.hpp"
+#include "SFML/System/Time.hpp"
 
 class Player : public sf::Sprite
 {
@@ -18,6 +19,7 @@ protected:
 
 	float mHealthMax;
 	float mHealth;
-	
+
+	sf::Time mTriggerShootAgain;
 };
 

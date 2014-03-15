@@ -20,6 +20,8 @@ Player::~Player()
 
 void Player::Update()
 	{
+	sf::Time frameDelta = gpGame->GetFrameDelta();
+	sf::Time frameTimeStamp = gpGame->GetFrameTimeStamp();
 	const float playerSpeed = 250.0f;
 	float playerBoost;
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
@@ -33,8 +35,7 @@ void Player::Update()
 
 	sf::Vector2f  playerPos = getPosition();
 	sf::Vector2f moveVec(0.0f, 0.0f);
-	float frameDelta = gpGame->GetFrameDelta().asSeconds();
-	float frameTimeStamp = gpGame->GetFrameTimeStamp().asSeconds();
+	
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
 		{
@@ -53,7 +54,7 @@ void Player::Update()
 		moveVec.x -= 1.0f;
 		}
 
-	playerPos += (moveVec * playerSpeed * playerBoost * frameDelta);
+	playerPos += (moveVec * playerSpeed * playerBoost * frameDelta.asSeconds());
 
 	sf::Vector2u windowSize = gpGame->GetWindow().getSize();
 	sf::FloatRect playerBounds = getGlobalBounds();
@@ -67,15 +68,14 @@ void Player::Update()
 	setPosition(playerPos);
 
 	// shoot code. 
-	static float shootAgainTrigger = 0.0f;
-	static const float timeBetweenShots = .50f;
+	sf::Time timeBetweenShots = sf::seconds(.50f);
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
 		{
-		if(shootAgainTrigger <= frameTimeStamp)
+		if(mTriggerShootAgain <= frameTimeStamp)
 			{
 			gpGame->CreatePlayerLaser();
 
-			shootAgainTrigger = frameTimeStamp + timeBetweenShots;
+			mTriggerShootAgain = frameTimeStamp + timeBetweenShots;
 			}
 		}
 	}

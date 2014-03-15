@@ -59,30 +59,33 @@ void Enemy::Update()
 		}
 	else // if there is no laser incoming then we can do other behaviors
 		{
-		if ( isPlayerInAreaOfAttack ) // the first behavior is homing in on the player if he is in attack area
+		// check for next decision
+		if ( mTriggerNextDecision <= frameStamp )
 			{
-			// figure out which side the player is on and move in that direction.
-			if ( areaOfAttack.left + (areaOfAttack.width / 2.0f) <= playerRect.left + (playerRect.width / 2.0f))
+			// if player is in area of attack while making a new decision then the decision
+			// should be to move in player direction
+			if ( isPlayerInAreaOfAttack )
 				{
-				mDecidedDirection.x = Random::FloatBetween(0.5f, 1.0f );
-				mDecidedDirection.y = 0.60f;
+				// calculate to move left or rigth depending on relative player position
+				if(areaOfAttack.left + (areaOfAttack.width / 2.0f) <= playerRect.left + (playerRect.width / 2.0f))
+					{
+					mDecidedDirection.x = Random::FloatBetween(0.5f, 1.0f);
+					mDecidedDirection.y = Random::FloatBetween(0.5f, 1.0f);
+					}
+				else
+					{
+					mDecidedDirection.x = -Random::FloatBetween(0.5f, 1.0f);
+					mDecidedDirection.y = Random::FloatBetween(0.5f, 1.0f);
+					}
 				}
 			else
 				{
-				mDecidedDirection.x = -Random::FloatBetween(0.5f, 1.0f);
-				mDecidedDirection.y = 0.60f;
-				}
-			}
-		else // if the player isn't in the attack area then do random movements.
-			{
-			// since there was nothing to evade, do random decisions and keep moving in a general
-			// downward direction.
-			if ( mTriggerNextDecision <= frameStamp )
-				{
+				// player is not in area of attack, do random directions and speed.
 				mDecidedDirection.x = Random::FloatBetween(-1.0f, 1.0f);
 				mDecidedDirection.y = Random::FloatBetween(0.5f, 1.0f);
-				mTriggerNextDecision = frameStamp + sf::seconds(Random::FloatBetween(0.5f, 2.0f));
 				}
+				
+			mTriggerNextDecision = frameStamp + sf::seconds(Random::FloatBetween(0.5f, 2.0f));
 			}
 		move(mDecidedDirection * mEnemySpeed * frameDelta.asSeconds());
 		StayInBounds();
@@ -123,7 +126,6 @@ EvadeDir Enemy::GetEvadeDirection() const
 	// Get first shot in front of this enemy
 	auto lasersPlayer = gpGame->GetLasersPlayer();
 
-	const sf::Vector2f & enemyPos = getPosition();
 	const sf::FloatRect & enemyRect = getGlobalBounds();
 
 	// create rect that if the laser's rect touches, that laser should be evaded
@@ -166,19 +168,17 @@ void Enemy::StayInBounds()
 	{
 	// check out of bounds tell enemy to move inwards
 	const sf::FloatRect newEnemyRect = getGlobalBounds();
-	const float minSpeedForEdgeAvoid = .25f;
+	const float minSpeedForEdgeAvoid = .5f;
 
 	// check for off left
 	if(newEnemyRect.left < 0.0f)
 		{
-		mDecidedDirection.x = std::max( 0.5f, std::abs(mDecidedDirection.x));
-		mDecidedDirection.y = std::max( 0.25f, mDecidedDirection.y );
+		mDecidedDirection.x = std::max( minSpeedForEdgeAvoid, std::abs(mDecidedDirection.x));
 		}
 	// check for off right
 	if(newEnemyRect.left + newEnemyRect.width >= gpGame->GetWindow().getSize().x)
 		{
-		mDecidedDirection.x = -std::max( 0.5f, std::abs(mDecidedDirection.x));
-		mDecidedDirection.y = std::max( 0.25f, mDecidedDirection.y);
+		mDecidedDirection.x = -std::max(minSpeedForEdgeAvoid, std::abs(mDecidedDirection.x));
 		}
 	}
 
