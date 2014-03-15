@@ -27,11 +27,16 @@ public:
 	int GetScoreValue() const;
 	void SetScoreValue( const int scoreValue );
 
+	void Shoot();
+
 protected:
 	sf::Time mTriggerNextDecision;
 	float mEnemySpeed;
 
 	sf::Vector2f mDecidedDirection;
+
+	sf::Time mTriggerCanShoot;
+	sf::Time mTriggerNextRandomShot;
 
 	int mScoreValue;
 };

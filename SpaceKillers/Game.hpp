@@ -23,6 +23,8 @@ public:
 	void MainLoop();
 	int GetReturnValue() const;
 
+	void ResetGame();
+
 	void Update();
 	void Draw();
 
@@ -44,6 +46,7 @@ public:
 	sf::Time GetFrameTimeStamp() const;
 	sf::Time GetFrameDelta() const;
 
+	const Player & GetPlayer() const;
 	const std::vector<sf::Sprite> & GetLasersPlayer() const;
 
 protected:

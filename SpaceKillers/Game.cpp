@@ -49,6 +49,16 @@ Game::~Game()
 	gpGame = nullptr;
 	}
 
+void Game::ResetGame()
+	{
+	mPlayer.SetScore(0);
+	mPlayer.setPosition( mWindow.getSize().x / 2, mWindow.getSize().y / 4 * 3);
+	mEnemies.clear();
+	mLasersPlayer.clear();
+	mLasersEnemy.clear();
+	mExplosions.clear();
+	}
+
 void Game::Update()
 	{
 	UpdateBackground();
@@ -75,6 +85,7 @@ void Game::Draw()
 		{
 		mWindow.draw(playerLaser, rstates);
 		}
+
 	for(auto & enemyLaser : mLasersEnemy)
 		{
 		mWindow.draw(enemyLaser, rstates);
@@ -207,13 +218,9 @@ void Game::UpdateEnemies()
 void Game::UpdateLasers()
 	{
 	// move lasers
-	const float playerLaserSpeed = 500.0f;
-	for(auto & laser : mLasersPlayer)
-		{
-		laser.move(0.0f, -playerLaserSpeed * mFrameDelta.asSeconds());
-		}
-
+	const float playerLaserSpeed(500.f);
 	// Erase the lasers if they are off the play area completely on top and bottom
+	// if not erased then move them.
 	for(int i = 0; i < mLasersPlayer.size(); ++i)
 		{
 		// top remove code
@@ -230,10 +237,31 @@ void Game::UpdateLasers()
 			mLasersPlayer.erase(mLasersPlayer.begin() + i--);
 			continue;
 			}
+		mLasersPlayer[i].move(0.0f, -playerLaserSpeed * mFrameDelta.asSeconds());
+		}
+
+	for(int i = 0; i < mLasersEnemy.size(); ++i )
+		{
+		const sf::FloatRect & laserBounds( mLasersEnemy[i].getGlobalBounds() );
+		if(laserBounds.top + laserBounds.height < 0.0f )
+			{
+			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
+			continue;
+			}
+		if ( laserBounds.top > float(mWindow.getSize().y) )
+			{
+			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
+			continue;
+			}
+		mLasersEnemy[i].move(0.0f, playerLaserSpeed * mFrameDelta.asSeconds());
+
+		if ( mLasersEnemy[i].getGlobalBounds().intersects(mPlayer.getGlobalBounds()) )
+			{
+			ResetGame();
+			}
 		}
 
 	// check player lasers against enemies
-	
 	for(unsigned int laserIndex = 0; laserIndex < mLasersPlayer.size(); ++laserIndex)
 		{
 		sf::Sprite & laser = mLasersPlayer[laserIndex];
@@ -246,12 +274,13 @@ void Game::UpdateLasers()
 				// COLLISION
 				CreateExplosionShip( enemy.getGlobalBounds() );
 
+				mPlayer.AddScore( enemy.GetScoreValue() );
+
 				mLasersPlayer.erase( mLasersPlayer.begin() + laserIndex-- );
 				mEnemies.erase( mEnemies.begin() + enemyIndex-- );
 				break;
 				}
 			}
-	
 		}
 
 	// check player laser against enemy laser
@@ -265,7 +294,7 @@ void Game::UpdateLasers()
 
 			if ( playerLaser.getGlobalBounds().intersects( enemyLaser.getGlobalBounds() ) )
 				{
-				CreateExplosionLaser( enemyLaser.getGlobalBounds() );
+				CreateExplosionLaser( playerLaser.getGlobalBounds() );
 
 				mLasersEnemy.erase( mLasersEnemy.begin() + enemyLaserIndex-- );
 				mLasersPlayer.erase( mLasersPlayer.begin() + playerLaserIndex-- );
@@ -334,6 +363,11 @@ void Game::LoadGame()
 		throw std::runtime_error("Failed to load image.");
 		}
 
+	if(!mLaserRedTex.loadFromFile(GetTexturesFolder() + "laserRed.png"))
+		{
+		throw std::runtime_error("Failed to load image.");
+		}
+
 	// load enemies texture
 	if(!mEnemyShipTex.loadFromFile(GetTexturesFolder() + "Titan.png"))
 		{
@@ -365,7 +399,18 @@ void Game::LoadGame()
 
 void Game::CreateEnemyLaser(Enemy & enemy)
 	{
+	sf::FloatRect enemyRect = enemy.getGlobalBounds();
+	sf::Vector2f laserPos;
 
+	sf::Sprite enemyLaser(mLaserRedTex);
+	enemyLaser.setScale(0.25f, 0.25f);
+	sf::FloatRect laserRect = enemyLaser.getGlobalBounds();
+
+	laserPos.x = enemyRect.left + (enemyRect.width / 2.0f) - (laserRect.width / 2.0f );
+	laserPos.y = enemyRect.top + enemyRect.height + 2.0f;
+
+	enemyLaser.setPosition( laserPos );
+	mLasersEnemy.emplace_back(std::move(enemyLaser));
 	}
 
 void Game::CreatePlayerLaser()
@@ -406,7 +451,7 @@ void Game::CreateExplosionLaser(const sf::FloatRect & destroyedLaserRect )
 	exp.setPosition( destroyedLaserRect.left, destroyedLaserRect.top );
 	const sf::FloatRect & expRect = exp.getGlobalBounds();
 
-	exp.setScale(destroyedLaserRect.width / expRect.width, destroyedLaserRect.height / expRect.height);
+	exp.setScale(destroyedLaserRect.width / expRect.width * 2.0f, destroyedLaserRect.height / expRect.height * 2.0f);
 	
 	mExplosions.emplace_back(std::move(exp));
 	}
@@ -424,6 +469,11 @@ sf::Time Game::GetFrameTimeStamp() const
 sf::Time Game::GetFrameDelta() const
 	{
 	return mFrameDelta;
+	}
+
+const Player & Game::GetPlayer() const
+	{
+	return mPlayer;
 	}
 
 const std::vector<sf::Sprite> & Game::GetLasersPlayer() const

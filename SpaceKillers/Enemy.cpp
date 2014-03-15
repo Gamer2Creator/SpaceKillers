@@ -5,7 +5,8 @@
 Enemy::Enemy()
 	:
 	sf::Sprite(),
-	mEnemySpeed(75.0f)
+	mEnemySpeed(75.0f),
+	mScoreValue(100)
 	{
 
 	}
@@ -64,6 +65,28 @@ void Enemy::Update()
 		{
 		mDecidedDirection.x = -1.0f;
 		}
+
+	// shooting code.
+	sf::FloatRect areaOfAttack = getGlobalBounds();
+	float growWidth = areaOfAttack.width * 2.0f;
+	areaOfAttack.width += growWidth;
+	areaOfAttack.left -= growWidth / 2.0f;
+	areaOfAttack.height = gpGame->GetWindow().getSize().y - areaOfAttack.top;
+
+	if ( areaOfAttack.intersects( gpGame->GetPlayer().getGlobalBounds() ) )
+		{
+		Shoot();
+		mTriggerNextRandomShot = gpGame->GetFrameTimeStamp() + sf::seconds(Random::FloatBetween(.5f, 3.5f));
+		}
+	else
+		{
+		if ( mTriggerNextRandomShot <= gpGame->GetFrameTimeStamp() )
+			{
+			Shoot();
+			mTriggerNextRandomShot = gpGame->GetFrameTimeStamp() + sf::seconds( Random::FloatBetween(.5f, 3.5f) );
+			}
+		}
+
 	}
 
 sf::Time Enemy::GetTriggerNextDecision() const
@@ -128,4 +151,13 @@ int Enemy::GetScoreValue() const
 void Enemy::SetScoreValue( const int scoreValue )
 	{
 	mScoreValue = scoreValue;
+	}
+
+void Enemy::Shoot()
+	{
+	if ( mTriggerCanShoot <= gpGame->GetFrameTimeStamp() )
+		{
+		gpGame->CreateEnemyLaser(*this);
+		mTriggerCanShoot = gpGame->GetFrameTimeStamp() + sf::seconds(Random::FloatBetween(.5f, 1.0f));
+		}
 	}
