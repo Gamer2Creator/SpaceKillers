@@ -6,8 +6,11 @@
 
 Player::Player()
 	:
-	mScore(0)
+	mScore(0),
+	mHealthMax(100.0f),
+	mHealth(mHealthMax)
 	{
+
 	}
 
 
@@ -55,10 +58,12 @@ void Player::Update()
 	sf::Vector2u windowSize = gpGame->GetWindow().getSize();
 	sf::FloatRect playerBounds = getGlobalBounds();
 
+	// keep player inside screen edge code.
 	playerPos.x = std::min(float(windowSize.x) - float(playerBounds.width), playerPos.x);
 	playerPos.x = std::max(0.0f, playerPos.x);
 	playerPos.y = std::min(float(windowSize.y) - float(playerBounds.height), playerPos.y);
 	playerPos.y = std::max(0.0f, playerPos.y);
+	
 	setPosition(playerPos);
 
 	// shoot code. 
@@ -66,7 +71,7 @@ void Player::Update()
 	static const float timeBetweenShots = .50f;
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
 		{
-		if(shootAgainTrigger < frameTimeStamp)
+		if(shootAgainTrigger <= frameTimeStamp)
 			{
 			gpGame->CreatePlayerLaser();
 
@@ -83,9 +88,13 @@ int Player::GetScore() const
 void Player::AddScore( int addScore )
 	{
 	mScore += addScore;
+
+	mScore = std::max(mScore, 0);
 	}
 
 void Player::SetScore( int setScore )
 	{
 	mScore = setScore;
+
+	mScore = std::max(mScore, 0);
 	}

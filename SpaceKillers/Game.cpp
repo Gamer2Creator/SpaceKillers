@@ -19,6 +19,12 @@ const std::string & Game::GetTexturesFolder()
 	return texturesFolder;
 	}
 
+const std::string & Game::GetFontsFolder()
+	{
+	static const std::string fontsFolder("../Resources/Fonts/");
+	return fontsFolder;
+	}
+
 Game::Game()
 	:
 	mWindow(),
@@ -49,6 +55,7 @@ void Game::Update()
 	UpdatePlayer();
 	UpdateEnemies();
 	UpdateLasers();
+	UpdateExplosions();
 	}
 
 void Game::Draw()
@@ -72,6 +79,16 @@ void Game::Draw()
 		{
 		mWindow.draw(enemyLaser, rstates);
 		}
+
+	for ( auto & explosion : mExplosions )
+		{
+		mWindow.draw(explosion, rstates);
+		}
+
+	// draw gui stuff last
+	// drawing score
+	mTextScore.setString( std::to_string(mPlayer.GetScore()) );
+	mWindow.draw(mTextScore, rstates);
 	}
 
 void Game::MainLoop()
@@ -181,7 +198,9 @@ void Game::UpdateEnemies()
 			mEnemies.erase( mEnemies.begin() + i--);
 			}
 		else
+			{
 			mEnemies[i].Update();
+			}
 		}
 	}
 
@@ -212,12 +231,69 @@ void Game::UpdateLasers()
 			continue;
 			}
 		}
+
+	// check player lasers against enemies
+	
+	for(unsigned int laserIndex = 0; laserIndex < mLasersPlayer.size(); ++laserIndex)
+		{
+		sf::Sprite & laser = mLasersPlayer[laserIndex];
+		for ( unsigned int enemyIndex = 0; enemyIndex < mEnemies.size(); ++enemyIndex )
+			{
+			Enemy & enemy = mEnemies[enemyIndex];
+
+			if ( laser.getGlobalBounds().intersects(enemy.getGlobalBounds()) )
+				{
+				// COLLISION
+				CreateExplosionShip( enemy.getGlobalBounds() );
+
+				mLasersPlayer.erase( mLasersPlayer.begin() + laserIndex-- );
+				mEnemies.erase( mEnemies.begin() + enemyIndex-- );
+				break;
+				}
+			}
+	
+		}
+
+	// check player laser against enemy laser
+	for ( unsigned int playerLaserIndex = 0; playerLaserIndex < mLasersPlayer.size(); ++playerLaserIndex )
+		{
+		sf::Sprite & playerLaser = mLasersPlayer[playerLaserIndex];
+
+		for ( unsigned int enemyLaserIndex = 0; enemyLaserIndex < mLasersEnemy.size(); ++enemyLaserIndex )
+			{
+			sf::Sprite & enemyLaser = mLasersEnemy[enemyLaserIndex];
+
+			if ( playerLaser.getGlobalBounds().intersects( enemyLaser.getGlobalBounds() ) )
+				{
+				CreateExplosionLaser( enemyLaser.getGlobalBounds() );
+
+				mLasersEnemy.erase( mLasersEnemy.begin() + enemyLaserIndex-- );
+				mLasersPlayer.erase( mLasersPlayer.begin() + playerLaserIndex-- );
+				break;
+				}
+			}
+		}
+	}
+
+void Game::UpdateExplosions()
+	{
+	for ( unsigned int i = 0; i < mExplosions.size(); ++i )
+		{
+		if ( mExplosions[i].IsAnimationOver() )
+			{
+			mExplosions.erase( mExplosions.begin() + i-- );
+			}
+		else
+			{
+			mExplosions[i].UpdateAnimation();
+			}
+		}
 	}
 
 void Game::LoadGame()
 	{
 	sf::Image backgroundImage;
-	if(!backgroundImage.loadFromFile(GetTexturesFolder() + "nebula1.png"))
+	if(!backgroundImage.loadFromFile(GetTexturesFolder() + "backgroundStarsScalledCropped.png"))
 		{
 		throw std::runtime_error("Failed to load image.");
 		}
@@ -264,7 +340,27 @@ void Game::LoadGame()
 		throw std::runtime_error("Failed to load image.");
 		}
 
-	UpdateEnemies(); // produce some enemies right away.
+	if (!mExplosionShipTex.loadFromFile(GetTexturesFolder() + "explosion2.png"))
+		{
+		throw std::runtime_error("Failed to load image.");
+		}
+
+	if (!mExplosionLaserTex.loadFromFile(GetTexturesFolder() + "boom3.png"))
+		{
+		throw std::runtime_error("Failed to load image.");
+		}
+
+	// load font
+	if ( !mFontGUI.loadFromFile(GetFontsFolder() + "PressStart2P.ttf") )
+		{
+		throw std::runtime_error("Failed to load font.");
+		}
+
+	mTextScore.setFont( mFontGUI );
+	mTextScore.setPosition(sf::Vector2f(10.f, 10.f));
+	mTextScore.setString("1337");
+	mTextScore.setCharacterSize(25);
+	mTextScore.setColor( sf::Color(200, 60, 60, 180) );
 	}
 
 void Game::CreateEnemyLaser(Enemy & enemy)
@@ -285,6 +381,34 @@ void Game::CreatePlayerLaser()
 	startingLaserPos.y = playerPos.y - laser.getGlobalBounds().height - 2.0f;
 	laser.setPosition( startingLaserPos );
 	mLasersPlayer.emplace_back( std::move( laser ) );
+	}
+
+void Game::CreateExplosionShip(const sf::FloatRect & destroyedObjectRect)
+	{
+	Explosion exp( sf::seconds(1.5f), 4, 4, 64 );
+
+	exp.setTexture( mExplosionShipTex );
+	exp.setTextureRect( sf::IntRect(0,0, 64, 64) );
+	exp.setPosition(destroyedObjectRect.left, destroyedObjectRect.top);
+	const sf::FloatRect & expRect = exp.getGlobalBounds();
+	exp.setScale(destroyedObjectRect.width / expRect.width, destroyedObjectRect.height / expRect.height);
+	//exp.setScale(expRect.width / destroyedObjectRect.width, expRect.height / );
+	
+	mExplosions.emplace_back(std::move(exp));
+	}
+
+void Game::CreateExplosionLaser(const sf::FloatRect & destroyedLaserRect )
+	{
+	Explosion exp( sf::seconds(1.0f), 8, 8, 1024 / 8 );
+
+	exp.setTexture( mExplosionLaserTex );
+	exp.setTextureRect( sf::IntRect(0,0, 1024/8, 1024/8) );
+	exp.setPosition( destroyedLaserRect.left, destroyedLaserRect.top );
+	const sf::FloatRect & expRect = exp.getGlobalBounds();
+
+	exp.setScale(destroyedLaserRect.width / expRect.width, destroyedLaserRect.height / expRect.height);
+	
+	mExplosions.emplace_back(std::move(exp));
 	}
 
 const sf::RenderWindow & Game::GetWindow() const

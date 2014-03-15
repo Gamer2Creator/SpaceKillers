@@ -85,12 +85,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enemy.hpp" />
+    <ClInclude Include="Explosion.hpp" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="Player.hpp" />
   </ItemGroup>

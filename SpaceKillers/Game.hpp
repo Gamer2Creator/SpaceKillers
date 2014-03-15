@@ -2,6 +2,7 @@
 
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "Explosion.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -29,11 +30,15 @@ public:
 	void UpdatePlayer();
 	void UpdateEnemies();
 	void UpdateLasers();
+	void UpdateExplosions();
 
 	void CreateEnemyLaser(Enemy & enemy);
 	void CreatePlayerLaser();
+	void CreateExplosionShip( const sf::FloatRect & destroyedObjectRect );
+	void CreateExplosionLaser( const sf::FloatRect & destroyedLaserRect );
 
 	static const std::string & GetTexturesFolder();
+	static const std::string & GetFontsFolder();
 
 	const sf::RenderWindow & GetWindow() const;
 	sf::Time GetFrameTimeStamp() const;
@@ -58,15 +63,25 @@ protected:
 	sf::Texture mLaserBlueTex;
 	sf::Texture mLaserRedTex;
 
+	sf::Texture mExplosionShipTex;
+	sf::Texture mExplosionLaserTex;
+
+	// fonts
+	sf::Font mFontGUI;
+
 	// sprites
 	sf::Sprite mBackground1;
 	sf::Sprite mBackground2;
+
+	// gui text
+	sf::Text mTextScore;
 
 	Player mPlayer;
 
 	std::vector< Enemy > mEnemies;
 	std::vector< sf::Sprite > mLasersPlayer;
 	std::vector< sf::Sprite > mLasersEnemy;
+	std::vector< Explosion > mExplosions;
 };
 
 extern Game * gpGame;

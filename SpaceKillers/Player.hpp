@@ -15,5 +15,9 @@ public:
 
 protected:
 	int mScore;
+
+	float mHealthMax;
+	float mHealth;
+	
 };
 

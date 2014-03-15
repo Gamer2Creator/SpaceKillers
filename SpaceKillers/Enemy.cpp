@@ -54,15 +54,15 @@ void Enemy::Update()
 
 	// check out of bounds tell enemy to move inwards
 	const sf::FloatRect & enemyRect = getGlobalBounds();
+	const float minSpeedForEdgeEvoid = .25f;
 
-	// TODO: check if there is no left or right momentum, add some if there is none.
 	if ( enemyRect.left < 0.0f )
 		{
-		mDecidedDirection.x = abs(mDecidedDirection.x);
+		mDecidedDirection.x = 1.0f;
 		}
 	if ( enemyRect.left + enemyRect.width > gpGame->GetWindow().getSize().y )
 		{
-		mDecidedDirection.x = -abs(mDecidedDirection.x);
+		mDecidedDirection.x = -1.0f;
 		}
 	}
 
@@ -84,7 +84,7 @@ EvadeDir Enemy::GetEvadeDirection() const
 	const sf::Vector2f & enemyPos = getPosition();
 	const sf::FloatRect & enemyRect = getGlobalBounds();
 
-	// create rect that if the laser is in it should be evaded
+	// create rect that if the laser's rect touches, that laser should be evaded
 	sf::FloatRect evadeAreaOfEffect = enemyRect; // set to the enemy rect initially
 	float scaleRatio = 1.0f; // the ratio to scale by
 	float widthToAdd = evadeAreaOfEffect.width * scaleRatio; // the calculated width to add
@@ -103,7 +103,7 @@ EvadeDir Enemy::GetEvadeDirection() const
 
 			// determine which direction to evade.
 			float enemyMidpointX = enemyRect.left + (enemyRect.width / 2.0f);
-			if ( enemyMidpointX <= laserRect.left )
+			if ( enemyMidpointX <= laserRect.left + (laserRect.width / 2.0f) )
 				{
 				// laser is on right half, so evade left.
 				return EvadeDir::Left;
@@ -118,4 +118,14 @@ EvadeDir Enemy::GetEvadeDirection() const
 
 	// if we got here no lasers were heading in this enemies direction so keep going
 	return EvadeDir::Null;
+	}
+
+int Enemy::GetScoreValue() const
+	{
+	return mScoreValue;
+	}
+
+void Enemy::SetScoreValue( const int scoreValue )
+	{
+	mScoreValue = scoreValue;
 	}

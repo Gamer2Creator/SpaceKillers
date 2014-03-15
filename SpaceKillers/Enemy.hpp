@@ -10,6 +10,7 @@ enum class EvadeDir
 	Right,
 	End
 	};
+
 class Enemy : public sf::Sprite
 {
 public:
@@ -23,9 +24,14 @@ public:
 
 	EvadeDir GetEvadeDirection() const;
 
+	int GetScoreValue() const;
+	void SetScoreValue( const int scoreValue );
+
 protected:
 	sf::Time mTriggerNextDecision;
 	float mEnemySpeed;
 
 	sf::Vector2f mDecidedDirection;
+
+	int mScoreValue;
 };
