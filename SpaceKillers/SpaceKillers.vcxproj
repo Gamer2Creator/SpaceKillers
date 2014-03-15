@@ -41,6 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\SFMLVisualStudio\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SFMLVisualStudio\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -57,7 +59,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\chris\Documents\CodeLibs2013\x32\debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\SFMLVisualStudio\lib\Debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-system-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-network-d.lib;sfml-main-d.lib;opengl32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

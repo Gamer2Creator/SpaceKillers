@@ -36,19 +36,19 @@ void Player::Update()
 	float frameDelta = gpGame->GetFrameDelta().asSeconds();
 	float frameTimeStamp = gpGame->GetFrameTimeStamp().asSeconds();
 
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
 		{
 		moveVec.y -= 1.0f;
 		}
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
 		{
 		moveVec.y += 1.0f;
 		}
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
 		{
 		moveVec.x += 1.0f;
 		}
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
 		{
 		moveVec.x -= 1.0f;
 		}
