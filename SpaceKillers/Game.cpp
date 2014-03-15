@@ -217,6 +217,7 @@ void Game::UpdateEnemies()
 
 void Game::UpdateLasers()
 	{
+	const sf::Vector2u windowSize( mWindow.getSize() );
 	// move lasers
 	const float playerLaserSpeed(750.f);
 	// Erase the lasers if they are off the play area completely on top and bottom
@@ -232,7 +233,7 @@ void Game::UpdateLasers()
 			}
 
 		// bottom remove code
-		if(laserBounds.top > float(mWindow.getSize().y))
+		if(laserBounds.top > float(windowSize.y))
 			{
 			mLasersPlayer.erase(mLasersPlayer.begin() + i--);
 			continue;
@@ -248,7 +249,7 @@ void Game::UpdateLasers()
 			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
 			continue;
 			}
-		if ( laserBounds.top > float(mWindow.getSize().y) )
+		if ( laserBounds.top > float(windowSize.y) )
 			{
 			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
 			continue;
@@ -268,11 +269,11 @@ void Game::UpdateLasers()
 		for ( unsigned int enemyIndex = 0; enemyIndex < mEnemies.size(); ++enemyIndex )
 			{
 			Enemy & enemy = mEnemies[enemyIndex];
-
-			if ( laser.getGlobalBounds().intersects(enemy.getGlobalBounds()) )
+			const sf::FloatRect enemyRect( enemy.getGlobalBounds() );
+			if ( laser.getGlobalBounds().intersects(enemyRect) )
 				{
 				// COLLISION
-				CreateExplosionShip( enemy.getGlobalBounds() );
+				CreateExplosionShip( enemyRect );
 
 				mPlayer.AddScore( enemy.GetScoreValue() );
 
@@ -291,10 +292,10 @@ void Game::UpdateLasers()
 		for ( unsigned int enemyLaserIndex = 0; enemyLaserIndex < mLasersEnemy.size(); ++enemyLaserIndex )
 			{
 			sf::Sprite & enemyLaser = mLasersEnemy[enemyLaserIndex];
-
-			if ( playerLaser.getGlobalBounds().intersects( enemyLaser.getGlobalBounds() ) )
+			const sf::FloatRect playerLaserRect(playerLaser.getGlobalBounds());
+			if ( playerLaserRect.intersects( enemyLaser.getGlobalBounds() ) )
 				{
-				CreateExplosionLaser( playerLaser.getGlobalBounds() );
+				CreateExplosionLaser( playerLaserRect );
 
 				mLasersEnemy.erase( mLasersEnemy.begin() + enemyLaserIndex-- );
 				mLasersPlayer.erase( mLasersPlayer.begin() + playerLaserIndex-- );

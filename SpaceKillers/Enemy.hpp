@@ -23,6 +23,7 @@ public:
 	void SetTriggerNextDecision(sf::Time timeTrigger);
 
 	EvadeDir GetEvadeDirection() const;
+	void StayInBounds();
 
 	int GetScoreValue() const;
 	void SetScoreValue( const int scoreValue );

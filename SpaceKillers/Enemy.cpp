@@ -31,6 +31,7 @@ void Enemy::Update()
 	// this rect represents the area the enemy considers the player in his sights.
 	const float growWidth = 2.0f * enemyRect.width;
 	
+	// creating the rect which describes the area of attack, which is the area the enemy is aware of and will seek the player within.
 	const sf::FloatRect areaOfAttack(enemyRect.left - (growWidth / 2.0f),
 									 enemyRect.top,
 									 enemyRect.width + growWidth,
@@ -38,6 +39,8 @@ void Enemy::Update()
 
 	bool isPlayerInAreaOfAttack = areaOfAttack.intersects(playerRect);
 
+	// check to evade, this trumps all decisions
+	// if a laser is coming at this enemy it will attempt evade
 	if ( evadeDir != EvadeDir::Null )
 		{
 		// need to evade in a particular direction
@@ -52,22 +55,25 @@ void Enemy::Update()
 			}
 		// move in this direction and keep the decided forward speed.
 		move( evadeVec * mEnemySpeed * frameDelta.asSeconds() );
+		StayInBounds();
 		}
-	else
+	else // if there is no laser incoming then we can do other behaviors
 		{
-		if ( isPlayerInAreaOfAttack )
+		if ( isPlayerInAreaOfAttack ) // the first behavior is homing in on the player if he is in attack area
 			{
-			//sf::FloatRect enemyRect = getGlobalBounds();
+			// figure out which side the player is on and move in that direction.
 			if ( areaOfAttack.left + (areaOfAttack.width / 2.0f) <= playerRect.left + (playerRect.width / 2.0f))
 				{
 				mDecidedDirection.x = Random::FloatBetween(0.5f, 1.0f );
+				mDecidedDirection.y = 0.60f;
 				}
 			else
 				{
 				mDecidedDirection.x = -Random::FloatBetween(0.5f, 1.0f);
+				mDecidedDirection.y = 0.60f;
 				}
 			}
-		else
+		else // if the player isn't in the attack area then do random movements.
 			{
 			// since there was nothing to evade, do random decisions and keep moving in a general
 			// downward direction.
@@ -79,23 +85,11 @@ void Enemy::Update()
 				}
 			}
 		move(mDecidedDirection * mEnemySpeed * frameDelta.asSeconds());
-		}
-
-	// check out of bounds tell enemy to move inwards
-	const sf::FloatRect newEnemyRect = getGlobalBounds();
-	const float minSpeedForEdgeEvoid = .25f;
-
-	if(newEnemyRect.left < 0.0f)
-		{
-		mDecidedDirection.x = 1.0f;
-		}
-	if(newEnemyRect.left + newEnemyRect.width >= windowSize.x)
-		{
-		mDecidedDirection.x = -1.0f;
+		StayInBounds();
 		}
 
 	// shooting code.
-	
+	// if the player is in the area of attack
 	if ( isPlayerInAreaOfAttack )
 		{
 		// shoot as fast as it can
@@ -166,6 +160,24 @@ EvadeDir Enemy::GetEvadeDirection() const
 
 	// if we got here no lasers were heading in this enemies direction so keep going
 	return EvadeDir::Null;
+	}
+
+void Enemy::StayInBounds()
+	{
+	// check out of bounds tell enemy to move inwards
+	const sf::FloatRect newEnemyRect = getGlobalBounds();
+	const float minSpeedForEdgeAvoid = .25f;
+
+	if(newEnemyRect.left < 0.0f)
+		{
+		mDecidedDirection.x = std::max( 0.5f, std::abs(mDecidedDirection.x));
+		mDecidedDirection.y = std::max( 0.25f, mDecidedDirection.y );
+		}
+	if(newEnemyRect.left + newEnemyRect.width >= gpGame->GetWindow().getSize().x)
+		{
+		mDecidedDirection.x = -std::max( 0.5f, std::abs(mDecidedDirection.x));
+		mDecidedDirection.y = std::max( 0.25f, mDecidedDirection.y);
+		}
 	}
 
 int Enemy::GetScoreValue() const
