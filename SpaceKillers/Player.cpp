@@ -6,7 +6,6 @@
 
 Player::Player()
 	:
-	mScore{0},
 	mHealthMax{100.0f},
 	mHealth{mHealthMax}
 	{
@@ -65,28 +64,9 @@ void Player::Update()
 		if(mTriggerShootAgain <= frameTimeStamp)
 			{
 			gpGame->CreatePlayerLaser();
-			AddScore(-10); // each shot removes 10 points.
+			gpGame->GetScoreBoard().AddScore(-10); // each shot removes 10 points.
 
 			mTriggerShootAgain = frameTimeStamp + timeBetweenShots;
 			}
 		}
-	}
-
-int Player::GetScore() const
-	{
-	return mScore;
-	}
-
-void Player::AddScore( int addScore )
-	{
-	mScore += addScore;
-
-	mScore = std::max(mScore, 0);
-	}
-
-void Player::SetScore( int setScore )
-	{
-	mScore = setScore;
-
-	mScore = std::max(mScore, 0);
 	}

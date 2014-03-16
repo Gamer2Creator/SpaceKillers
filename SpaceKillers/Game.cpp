@@ -51,7 +51,7 @@ Game::~Game()
 
 void Game::ResetGame()
 	{
-	mPlayer.SetScore(0);
+	mTextScoreBoard.SetScore(0);
 	mPlayer.setPosition( float(mWindow.getSize().x / 2), float(mWindow.getSize().y / 4 * 3));
 	mEnemies.clear();
 	mLasersPlayer.clear();
@@ -101,7 +101,7 @@ void Game::Draw()
 	// draw gui stuff last
 	// drawing score
 	
-	mWindow.draw(mTextScore, rstates);
+	mWindow.draw(mTextScoreBoard, rstates);
 	mWindow.draw(mTextTimeDisplay, rstates);
 	}
 
@@ -186,7 +186,7 @@ void Game::UpdateEnemies()
 	// another max enemy is added.
 	unsigned int maxEnemies = 2;
 	int scoreRatio = 1000;
-	int playerScore {mPlayer.GetScore()};
+	int playerScore = mTextScoreBoard.GetScore();
 	
 	maxEnemies += playerScore / scoreRatio;
 
@@ -278,7 +278,7 @@ void Game::UpdateLasers()
 				// COLLISION
 				CreateExplosionShip( enemyRect );
 
-				mPlayer.AddScore( enemy.GetScoreValue() );
+				mTextScoreBoard.AddScore(enemy.GetScoreValue());
 
 				mLasersPlayer.erase( mLasersPlayer.begin() + laserIndex-- );
 				mEnemies.erase( mEnemies.begin() + enemyIndex-- );
@@ -325,7 +325,6 @@ void Game::UpdateExplosions()
 void Game::UpdateGUI()
 	{
 	//gui related stuff here
-	mTextScore.setString(std::to_string(mPlayer.GetScore()));
 	mTextTimeDisplay.Update();
 	}
 
@@ -400,11 +399,10 @@ void Game::LoadGame()
 		throw std::runtime_error("Failed to load font.");
 		}
 
-	mTextScore.setFont(mFontGUI);
-	mTextScore.setPosition(sf::Vector2f{ 10.f, 10.f });
-	mTextScore.setString("1337");
-	mTextScore.setCharacterSize(25);
-	mTextScore.setColor(sf::Color{ 200, 60, 60, 180 } );
+	mTextScoreBoard.setFont(mFontGUI);
+	mTextScoreBoard.setPosition(sf::Vector2f{ 10.f, 10.f });
+	mTextScoreBoard.setCharacterSize(25);
+	mTextScoreBoard.setColor(sf::Color{ 200, 60, 60, 180 } );
 	
 	mTextTimeDisplay.setFont(mFontGUI);
 	mTextTimeDisplay.setPosition(sf::Vector2f{ 700.f, 10.f });
@@ -489,6 +487,11 @@ sf::Time Game::GetFrameDelta() const
 const Player & Game::GetPlayer() const
 	{
 	return mPlayer;
+	}
+
+ScoreBoard & Game::GetScoreBoard()
+	{
+	return mTextScoreBoard;
 	}
 
 const std::vector<sf::Sprite> & Game::GetLasersPlayer() const

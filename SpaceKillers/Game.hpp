@@ -3,6 +3,7 @@
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Explosion.hpp"
+#include "ScoreBoard.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -48,6 +49,7 @@ public:
 	sf::Time GetFrameDelta() const;
 
 	const Player & GetPlayer() const;
+	ScoreBoard & GetScoreBoard();
 	const std::vector<sf::Sprite> & GetLasersPlayer() const;
 
 protected:
@@ -78,7 +80,7 @@ protected:
 	sf::Sprite mBackground2;
 
 	// gui text
-	sf::Text mTextScore;
+	ScoreBoard mTextScoreBoard;
 	TimeDisplay mTextTimeDisplay; 
 
 	Player mPlayer;

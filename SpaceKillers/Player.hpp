@@ -9,13 +9,8 @@ public:
 	virtual ~Player();
 
 	void Update();
-	
-	int GetScore() const;
-	void AddScore( int addValue );
-	void SetScore( int value );
 
 protected:
-	int mScore;
 
 	float mHealthMax;
 	float mHealth;
