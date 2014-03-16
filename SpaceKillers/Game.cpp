@@ -7,7 +7,7 @@ std::mt19937 gTwister;
 
 float Random::FloatBetween( float low, float high )
 	{
-	std::uniform_real_distribution<float> dist(low, high);
+	std::uniform_real_distribution<float> dist{low, high};
 	return dist(gTwister);
 	}
 
@@ -15,13 +15,13 @@ Game * gpGame = nullptr;
 
 const std::string & Game::GetTexturesFolder()
 	{
-	static const std::string texturesFolder("../Resources/Textures/");
+	static const std::string texturesFolder{"../Resources/Textures/"};
 	return texturesFolder;
 	}
 
 const std::string & Game::GetFontsFolder()
 	{
-	static const std::string fontsFolder("../Resources/Fonts/");
+	static const std::string fontsFolder{"../Resources/Fonts/"};
 	return fontsFolder;
 	}
 
