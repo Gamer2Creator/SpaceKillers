@@ -13,9 +13,9 @@ Player::Player()
 
 	}
 
-
 Player::~Player()
 	{
+
 	}
 
 void Player::Update()
@@ -33,8 +33,8 @@ void Player::Update()
 		playerBoost = 1.0f;
 		}
 
-	sf::Vector2f  playerPos = getPosition();
-	sf::Vector2f moveVec(0.0f, 0.0f);
+	sf::Vector2f playerPos = getPosition();
+	sf::Vector2f moveVec{0.0f, 0.0f};
 	
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))

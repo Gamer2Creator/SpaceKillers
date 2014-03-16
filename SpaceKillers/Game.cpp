@@ -2,7 +2,7 @@
 
 #include <random>
 #include <ctime>
-
+ 
 std::mt19937 gTwister;
 
 float Random::FloatBetween( float low, float high )
@@ -70,7 +70,7 @@ void Game::Update()
 
 void Game::Draw()
 	{
-	sf::RenderStates rstates(sf::BlendMode::BlendAlpha);
+	sf::RenderStates rstates{sf::BlendMode::BlendAlpha};
 	mWindow.draw(mBackground1, rstates);
 	mWindow.draw(mBackground2, rstates);
 
@@ -124,7 +124,7 @@ void Game::MainLoop()
 				}
 			}
 
-		sf::Time now = clock.getElapsedTime();
+		sf::Time now {clock.getElapsedTime()};
 		mFrameDelta = now - mFrameTimeStamp;
 		mFrameTimeStamp = now;
 		Update();
@@ -142,8 +142,8 @@ int Game::GetReturnValue() const
 void Game::UpdateBackground()
 	{
 	// calculate how much to move the backgrounds by according to time passed.
-	sf::Vector2f moveBy(0.0f, 1.0f);
-	const float backgroundSpeed = 25.0f;
+	sf::Vector2f moveBy{0.0f, 1.0f};
+	const float backgroundSpeed {25.0f};
 	moveBy *= backgroundSpeed * mFrameDelta.asSeconds();
 
 	// figure out which one is on bottom and place the other the correct distance on top
@@ -181,18 +181,18 @@ void Game::UpdateEnemies()
 	// levels are handled by the score
 	// base max enemies is 2, for every scoreRatio in points
 	// another max enemy is added.
-	unsigned int maxEnemies = 2;
-	int scoreRatio = 1000;
-	int playerScore = mPlayer.GetScore();
+	unsigned int maxEnemies {2};
+	int scoreRatio {1000};
+	int playerScore {mPlayer.GetScore()};
 	
 	maxEnemies += playerScore / scoreRatio;
 
-	static float spawnTrigger = 0.0f;
+	static float spawnTrigger {};
 	if ( spawnTrigger < mFrameTimeStamp.asSeconds() )
 		{
 		if(mEnemies.size() < maxEnemies )
 			{
-			Enemy newEnemy;
+			Enemy newEnemy{};
 			newEnemy.setTexture(mEnemyShipTex);
 			newEnemy.setScale(0.25f, 0.25f);
 			newEnemy.setPosition(sf::Vector2f( Random::FloatBetween(0.0f, float(mWindow.getSize().x) - newEnemy.getGlobalBounds().width),-newEnemy.getGlobalBounds().height));
@@ -217,15 +217,15 @@ void Game::UpdateEnemies()
 
 void Game::UpdateLasers()
 	{
-	const sf::Vector2u windowSize( mWindow.getSize() );
+	const sf::Vector2u windowSize{mWindow.getSize()};
 	// move lasers
-	const float playerLaserSpeed(750.f);
+	const float playerLaserSpeed{750.f};
 	// Erase the lasers if they are off the play area completely on top and bottom
 	// if not erased then move them.
 	for(unsigned int i = 0; i < mLasersPlayer.size(); ++i)
 		{
 		// top remove code
-		const sf::FloatRect & laserBounds( mLasersPlayer[i].getGlobalBounds() );
+		const sf::FloatRect & laserBounds{mLasersPlayer[i].getGlobalBounds()};
 		if(laserBounds.top + laserBounds.height < 0.0f)
 			{
 			mLasersPlayer.erase(mLasersPlayer.begin() + i--);
@@ -243,7 +243,7 @@ void Game::UpdateLasers()
 
 	for(unsigned int i = 0; i < mLasersEnemy.size(); ++i )
 		{
-		const sf::FloatRect & laserBounds( mLasersEnemy[i].getGlobalBounds() );
+		const sf::FloatRect & laserBounds{mLasersEnemy[i].getGlobalBounds()};
 		if(laserBounds.top + laserBounds.height < 0.0f )
 			{
 			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
@@ -265,11 +265,11 @@ void Game::UpdateLasers()
 	// check player lasers against enemies
 	for(unsigned int laserIndex = 0; laserIndex < mLasersPlayer.size(); ++laserIndex)
 		{
-		sf::Sprite & laser = mLasersPlayer[laserIndex];
+		sf::Sprite & laser {mLasersPlayer[laserIndex]};
 		for ( unsigned int enemyIndex = 0; enemyIndex < mEnemies.size(); ++enemyIndex )
 			{
-			Enemy & enemy = mEnemies[enemyIndex];
-			const sf::FloatRect enemyRect( enemy.getGlobalBounds() );
+			Enemy & enemy {mEnemies[enemyIndex]};
+			const sf::FloatRect enemyRect {enemy.getGlobalBounds()};
 			if ( laser.getGlobalBounds().intersects(enemyRect) )
 				{
 				// COLLISION
@@ -287,12 +287,12 @@ void Game::UpdateLasers()
 	// check player laser against enemy laser
 	for ( unsigned int playerLaserIndex = 0; playerLaserIndex < mLasersPlayer.size(); ++playerLaserIndex )
 		{
-		sf::Sprite & playerLaser = mLasersPlayer[playerLaserIndex];
+		sf::Sprite & playerLaser {mLasersPlayer[playerLaserIndex]};
 
 		for ( unsigned int enemyLaserIndex = 0; enemyLaserIndex < mLasersEnemy.size(); ++enemyLaserIndex )
 			{
-			sf::Sprite & enemyLaser = mLasersEnemy[enemyLaserIndex];
-			const sf::FloatRect playerLaserRect(playerLaser.getGlobalBounds());
+			sf::Sprite & enemyLaser {mLasersEnemy[enemyLaserIndex]};
+			const sf::FloatRect playerLaserRect {playerLaser.getGlobalBounds()};
 			if ( playerLaserRect.intersects( enemyLaser.getGlobalBounds() ) )
 				{
 				CreateExplosionLaser( playerLaserRect );
@@ -322,7 +322,7 @@ void Game::UpdateExplosions()
 
 void Game::LoadGame()
 	{
-	sf::Image backgroundImage;
+	sf::Image backgroundImage{};
 	if(!backgroundImage.loadFromFile(GetTexturesFolder() + "backgroundStarsScalledCropped.png"))
 		{
 		throw std::runtime_error("Failed to load image.");
@@ -400,12 +400,12 @@ void Game::LoadGame()
 
 void Game::CreateEnemyLaser(Enemy & enemy)
 	{
-	sf::FloatRect enemyRect = enemy.getGlobalBounds();
-	sf::Vector2f laserPos;
+	sf::FloatRect enemyRect {enemy.getGlobalBounds()};
+	sf::Vector2f laserPos{};
 
-	sf::Sprite enemyLaser(mLaserRedTex);
+	sf::Sprite enemyLaser{mLaserRedTex};
 	enemyLaser.setScale(0.25f, 0.25f);
-	sf::FloatRect laserRect = enemyLaser.getGlobalBounds();
+	sf::FloatRect laserRect {enemyLaser.getGlobalBounds()};
 
 	laserPos.x = enemyRect.left + (enemyRect.width / 2.0f) - (laserRect.width / 2.0f );
 	laserPos.y = enemyRect.top + enemyRect.height + 2.0f;
@@ -416,13 +416,13 @@ void Game::CreateEnemyLaser(Enemy & enemy)
 
 void Game::CreatePlayerLaser()
 	{
-	sf::Vector2f playerPos( mPlayer.getPosition() );
-	float playerHalfWidth( mPlayer.getGlobalBounds().width / 2.0f );
+	sf::Vector2f playerPos { mPlayer.getPosition() };
+	float playerHalfWidth {mPlayer.getGlobalBounds().width / 2.0f};
 
-	sf::Sprite laser(mLaserBlueTex);
+	sf::Sprite laser {mLaserBlueTex};
 	laser.setScale(0.25f,0.25f);
 
-	sf::Vector2f startingLaserPos;
+	sf::Vector2f startingLaserPos{};
 	startingLaserPos.x = playerPos.x + playerHalfWidth - (laser.getGlobalBounds().width / 2.0f);
 	startingLaserPos.y = playerPos.y - laser.getGlobalBounds().height - 2.0f;
 	laser.setPosition( startingLaserPos );
@@ -431,12 +431,12 @@ void Game::CreatePlayerLaser()
 
 void Game::CreateExplosionShip(const sf::FloatRect & destroyedObjectRect)
 	{
-	Explosion exp( sf::seconds(1.5f), 4, 4, 64 );
+	Explosion exp{ sf::seconds(1.5f), 4, 4, 64 };
 
 	exp.setTexture( mExplosionShipTex );
 	exp.setTextureRect( sf::IntRect(0,0, 64, 64) );
 	exp.setPosition(destroyedObjectRect.left, destroyedObjectRect.top);
-	const sf::FloatRect & expRect = exp.getGlobalBounds();
+	const sf::FloatRect & expRect {exp.getGlobalBounds()};
 	exp.setScale(destroyedObjectRect.width / expRect.width, destroyedObjectRect.height / expRect.height);
 	//exp.setScale(expRect.width / destroyedObjectRect.width, expRect.height / );
 	
@@ -445,12 +445,12 @@ void Game::CreateExplosionShip(const sf::FloatRect & destroyedObjectRect)
 
 void Game::CreateExplosionLaser(const sf::FloatRect & destroyedLaserRect )
 	{
-	Explosion exp( sf::seconds(1.0f), 8, 8, 1024 / 8 );
+	Explosion exp {sf::seconds(1.0f), 8, 8, 1024 / 8 };
 
 	exp.setTexture( mExplosionLaserTex );
 	exp.setTextureRect( sf::IntRect(0,0, 1024/8, 1024/8) );
 	exp.setPosition( destroyedLaserRect.left, destroyedLaserRect.top );
-	const sf::FloatRect & expRect = exp.getGlobalBounds();
+	const sf::FloatRect & expRect {exp.getGlobalBounds()};
 
 	exp.setScale(destroyedLaserRect.width / expRect.width * 2.0f, destroyedLaserRect.height / expRect.height * 2.0f);
 	
