@@ -89,12 +89,14 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="TimeDisplay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enemy.hpp" />
     <ClInclude Include="Explosion.hpp" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="Player.hpp" />
+    <ClInclude Include="TimeDisplay.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

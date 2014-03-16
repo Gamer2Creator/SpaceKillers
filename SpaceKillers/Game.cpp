@@ -57,6 +57,7 @@ void Game::ResetGame()
 	mLasersPlayer.clear();
 	mLasersEnemy.clear();
 	mExplosions.clear();
+	timeDisplay.Reset(); 
 	}
 
 void Game::Update()
@@ -66,6 +67,7 @@ void Game::Update()
 	UpdateEnemies();
 	UpdateLasers();
 	UpdateExplosions();
+	UpdateGUI(); 
 	}
 
 void Game::Draw()
@@ -98,8 +100,9 @@ void Game::Draw()
 
 	// draw gui stuff last
 	// drawing score
-	mTextScore.setString( std::to_string(mPlayer.GetScore()) );
+	
 	mWindow.draw(mTextScore, rstates);
+	mWindow.draw(mTextTimeSurvived, rstates); 
 	}
 
 void Game::MainLoop()
@@ -319,25 +322,33 @@ void Game::UpdateExplosions()
 			}
 		}
 	}
+void Game::UpdateGUI()
+	{
+	//gui related stuff here
+	mTextScore.setString(std::to_string(mPlayer.GetScore()));
+	timeDisplay.Update();
+	mTextTimeSurvived.setString( timeDisplay.getElapsedTime()); 
+
+	}
 
 void Game::LoadGame()
-	{
+{
 	sf::Image backgroundImage{};
-	if(!backgroundImage.loadFromFile(GetTexturesFolder() + "backgroundStarsScalledCropped.png"))
-		{
+	if (!backgroundImage.loadFromFile(GetTexturesFolder() + "backgroundStarsScalledCropped.png"))
+	{
 		throw std::runtime_error("Failed to load image.");
-		}
+	}
 	// create texture on graphics card from image ( copies the image from ram to graphics card memory )
-	if(!mBackgroundTex1.loadFromImage(backgroundImage))
-		{
+	if (!mBackgroundTex1.loadFromImage(backgroundImage))
+	{
 		throw std::runtime_error("Failed to load image.");
-		}
+	}
 
 	// flip the image in ram
 	backgroundImage.flipVertically();
 
 	// copy the flipped image to graphics memory as another texture.
-	if(!mBackgroundTex2.loadFromImage(backgroundImage))
+	if (!mBackgroundTex2.loadFromImage(backgroundImage))
 		{
 		throw std::runtime_error("Failed to load image.");
 		}
@@ -348,29 +359,29 @@ void Game::LoadGame()
 	mBackground2.setPosition(mBackground1.getPosition() + sf::Vector2f(0.0f, float(mBackground1.getGlobalBounds().height)));
 
 	// load player texture
-	if(!mPlayerShipTex.loadFromFile(GetTexturesFolder() + "Spaceship_tut.png"))
+	if (!mPlayerShipTex.loadFromFile(GetTexturesFolder() + "Spaceship_tut.png"))
 		{
 		throw std::runtime_error("Failed to load image.");
 		}
 
 	// setup player sprites texture scale and position
 	mPlayer.setTexture(mPlayerShipTex);
-	mPlayer.setScale(sf::Vector2f(0.25f, 0.25f));
-	mPlayer.setPosition(sf::Vector2f(((mWindow.getSize().x / 2.0f) - float(mPlayer.getGlobalBounds().width) / 2.0f), mWindow.getSize().y - (mWindow.getSize().y / 4.0f)));
+	mPlayer.setScale(sf::Vector2f{ 0.25f, 0.25f } );
+	mPlayer.setPosition(sf::Vector2f{ ((mWindow.getSize().x / 2.0f) - float(mPlayer.getGlobalBounds().width) / 2.0f), mWindow.getSize().y - (mWindow.getSize().y / 4.0f) } );
 
 	// load players blue laser texture.
-	if(!mLaserBlueTex.loadFromFile(GetTexturesFolder() + "laserBlue.png"))
+	if (!mLaserBlueTex.loadFromFile(GetTexturesFolder() + "laserBlue.png"))
 		{
 		throw std::runtime_error("Failed to load image.");
 		}
 
-	if(!mLaserRedTex.loadFromFile(GetTexturesFolder() + "laserRed.png"))
+	if (!mLaserRedTex.loadFromFile(GetTexturesFolder() + "laserRed.png"))
 		{
 		throw std::runtime_error("Failed to load image.");
 		}
 
 	// load enemies texture
-	if(!mEnemyShipTex.loadFromFile(GetTexturesFolder() + "Titan.png"))
+	if (!mEnemyShipTex.loadFromFile(GetTexturesFolder() + "Titan.png"))
 		{
 		throw std::runtime_error("Failed to load image.");
 		}
@@ -386,16 +397,22 @@ void Game::LoadGame()
 		}
 
 	// load font
-	if ( !mFontGUI.loadFromFile(GetFontsFolder() + "PressStart2P.ttf") )
+	if (!mFontGUI.loadFromFile(GetFontsFolder() + "PressStart2P.ttf"))
 		{
 		throw std::runtime_error("Failed to load font.");
 		}
 
-	mTextScore.setFont( mFontGUI );
-	mTextScore.setPosition(sf::Vector2f(10.f, 10.f));
+	mTextScore.setFont(mFontGUI);
+	mTextScore.setPosition(sf::Vector2f{ 10.f, 10.f });
 	mTextScore.setString("1337");
 	mTextScore.setCharacterSize(25);
-	mTextScore.setColor( sf::Color(200, 60, 60, 180) );
+	mTextScore.setColor(sf::Color{ 200, 60, 60, 180 } );
+	
+	mTextTimeSurvived.setFont(mFontGUI);
+	mTextTimeSurvived.setPosition(sf::Vector2f{ 600.f, 10.f });
+	mTextTimeSurvived.setString(timeDisplay.getElapsedTime());
+	mTextTimeSurvived.setCharacterSize(25);
+	mTextTimeSurvived.setColor(sf::Color{ 200, 60, 60, 180 });
 	}
 
 void Game::CreateEnemyLaser(Enemy & enemy)

@@ -1,5 +1,5 @@
 #pragma once
-
+#include "TimeDisplay.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Explosion.hpp"
@@ -33,6 +33,7 @@ public:
 	void UpdateEnemies();
 	void UpdateLasers();
 	void UpdateExplosions();
+	void UpdateGUI(); 
 
 	void CreateEnemyLaser(Enemy & enemy);
 	void CreatePlayerLaser();
@@ -69,6 +70,9 @@ protected:
 	sf::Texture mExplosionShipTex;
 	sf::Texture mExplosionLaserTex;
 
+	//utils
+	TimeDisplay timeDisplay;
+
 	// fonts
 	sf::Font mFontGUI;
 
@@ -78,6 +82,7 @@ protected:
 
 	// gui text
 	sf::Text mTextScore;
+	sf::Text mTextTimeSurvived; 
 
 	Player mPlayer;
 
