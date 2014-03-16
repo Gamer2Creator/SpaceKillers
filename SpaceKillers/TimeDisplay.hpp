@@ -1,15 +1,21 @@
 #pragma once
+
+#include "SFML/System/Time.hpp"
+#include "SFML/Graphics/Text.hpp"
+
 #include <string>
-class TimeDisplay
+
+class TimeDisplay : public sf::Text
 {
-	float seconds;
-	float minutes; 
-	std::string strElapsedTime;
 public:
 	TimeDisplay();
 	~TimeDisplay();
+
 	void Update(); 
-	inline std::string& getElapsedTime() { return strElapsedTime; }
+	sf::Time GetElapsedTime() const;
 	void Reset(); 
+
+protected:
+	sf::Time mStartTime;
 };
 

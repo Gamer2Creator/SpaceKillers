@@ -6,9 +6,9 @@
 
 Player::Player()
 	:
-	mScore(0),
-	mHealthMax(100.0f),
-	mHealth(mHealthMax)
+	mScore{0},
+	mHealthMax{100.0f},
+	mHealth{mHealthMax}
 	{
 
 	}
@@ -20,22 +20,13 @@ Player::~Player()
 
 void Player::Update()
 	{
-	sf::Time frameDelta = gpGame->GetFrameDelta();
-	sf::Time frameTimeStamp = gpGame->GetFrameTimeStamp();
+	sf::Time frameDelta {gpGame->GetFrameDelta()};
+	sf::Time frameTimeStamp {gpGame->GetFrameTimeStamp()};
 	const float playerSpeed = 250.0f;
-	float playerBoost;
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
-		{
-		playerBoost = 1.5f;
-		}
-	else
-		{
-		playerBoost = 1.0f;
-		}
+	float playerBoost = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ? 1.5f : 1.0f;
 
-	sf::Vector2f playerPos = getPosition();
-	sf::Vector2f moveVec{0.0f, 0.0f};
-	
+	sf::Vector2f playerPos {getPosition()};
+	sf::Vector2f moveVec {0.0f, 0.0f};
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
 		{
@@ -56,8 +47,8 @@ void Player::Update()
 
 	playerPos += (moveVec * playerSpeed * playerBoost * frameDelta.asSeconds());
 
-	sf::Vector2u windowSize = gpGame->GetWindow().getSize();
-	sf::FloatRect playerBounds = getGlobalBounds();
+	sf::Vector2u windowSize {gpGame->GetWindow().getSize()};
+	sf::FloatRect playerBounds {getGlobalBounds()};
 
 	// keep player inside screen edge code.
 	playerPos.x = std::min(float(windowSize.x) - float(playerBounds.width), playerPos.x);
@@ -68,7 +59,7 @@ void Player::Update()
 	setPosition(playerPos);
 
 	// shoot code. 
-	sf::Time timeBetweenShots = sf::seconds(.50f);
+	sf::Time timeBetweenShots {sf::seconds(.50f)};
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
 		{
 		if(mTriggerShootAgain <= frameTimeStamp)

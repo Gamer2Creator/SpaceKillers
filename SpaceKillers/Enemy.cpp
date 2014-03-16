@@ -4,9 +4,9 @@
 
 Enemy::Enemy()
 	:
-	sf::Sprite(),
-	mEnemySpeed(75.0f),
-	mScoreValue(100)
+	sf::Sprite{},
+	mEnemySpeed{75.0f},
+	mScoreValue{100}
 	{
 
 	}
@@ -19,23 +19,23 @@ Enemy::~Enemy()
 void Enemy::Update()
 	{
 	// get time information
-	const sf::Time & frameDelta = gpGame->GetFrameDelta();
-	const sf::Time & frameStamp = gpGame->GetFrameTimeStamp();
+	const sf::Time & frameDelta {gpGame->GetFrameDelta()};
+	const sf::Time & frameStamp {gpGame->GetFrameTimeStamp()};
 
 	// get the direction to evade if there is nothing to evade EvadeDir::Null is returned.
-	const EvadeDir evadeDir = GetEvadeDirection();
-	const sf::FloatRect enemyRect( getGlobalBounds() );
-	const sf::Vector2u windowSize( gpGame->GetWindow().getSize() );
-	const sf::FloatRect playerRect( gpGame->GetPlayer().getGlobalBounds() );
+	const EvadeDir evadeDir {GetEvadeDirection()};
+	const sf::FloatRect enemyRect {getGlobalBounds()};
+	const sf::Vector2u windowSize {gpGame->GetWindow().getSize()};
+	const sf::FloatRect playerRect {gpGame->GetPlayer().getGlobalBounds()};
 
 	// this rect represents the area the enemy considers the player in his sights.
 	const float growWidth = 2.0f * enemyRect.width;
 	
 	// creating the rect which describes the area of attack, which is the area the enemy is aware of and will seek the player within.
-	const sf::FloatRect areaOfAttack(enemyRect.left - (growWidth / 2.0f),
+	const sf::FloatRect areaOfAttack{enemyRect.left - (growWidth / 2.0f),
 									 enemyRect.top,
 									 enemyRect.width + growWidth,
-									 windowSize.y - enemyRect.top );
+									 windowSize.y - enemyRect.top };
 
 	bool isPlayerInAreaOfAttack = areaOfAttack.intersects(playerRect);
 
@@ -124,9 +124,9 @@ void Enemy::SetTriggerNextDecision( sf::Time timeTrigger )
 EvadeDir Enemy::GetEvadeDirection() const
 	{
 	// Get first shot in front of this enemy
-	auto lasersPlayer = gpGame->GetLasersPlayer();
+	const std::vector<sf::Sprite> & lasersPlayer {gpGame->GetLasersPlayer()};
 
-	const sf::FloatRect & enemyRect = getGlobalBounds();
+	const sf::FloatRect & enemyRect {getGlobalBounds()};
 
 	// create rect that if the laser's rect touches, that laser should be evaded
 	sf::FloatRect evadeAreaOfEffect = enemyRect; // set to the enemy rect initially
@@ -138,7 +138,7 @@ EvadeDir Enemy::GetEvadeDirection() const
 
 	for ( auto & laser : lasersPlayer )
 		{
-		const sf::FloatRect & laserRect( laser.getGlobalBounds() );
+		const sf::FloatRect & laserRect{ laser.getGlobalBounds() };
 
 		// using intersects to detect collision between the area we have created and the laser rect.
 		if ( evadeAreaOfEffect.intersects( laserRect ) )
@@ -167,8 +167,8 @@ EvadeDir Enemy::GetEvadeDirection() const
 void Enemy::StayInBounds()
 	{
 	// check out of bounds tell enemy to move inwards
-	const sf::FloatRect newEnemyRect = getGlobalBounds();
-	const float minSpeedForEdgeAvoid = .5f;
+	const sf::FloatRect newEnemyRect {getGlobalBounds()};
+	const float minSpeedForEdgeAvoid = 0.5f;
 
 	// check for off left
 	if(newEnemyRect.left < 0.0f)

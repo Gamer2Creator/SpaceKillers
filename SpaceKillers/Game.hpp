@@ -70,9 +70,6 @@ protected:
 	sf::Texture mExplosionShipTex;
 	sf::Texture mExplosionLaserTex;
 
-	//utils
-	TimeDisplay timeDisplay;
-
 	// fonts
 	sf::Font mFontGUI;
 
@@ -82,7 +79,7 @@ protected:
 
 	// gui text
 	sf::Text mTextScore;
-	sf::Text mTextTimeSurvived; 
+	TimeDisplay mTextTimeDisplay; 
 
 	Player mPlayer;
 

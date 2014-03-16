@@ -35,7 +35,7 @@ void Explosion::UpdateAnimation()
 	
 	const int frame = posInt / timePerFrame;
 
-	sf::IntRect rect;
+	sf::IntRect rect{};
 	rect.height = rect.width = mFrameWidthHeightPixels;
 	rect.left = frame % mFramesCountWidth * rect.width;
 	rect.top = frame / mFramesCountWidth * rect.height;

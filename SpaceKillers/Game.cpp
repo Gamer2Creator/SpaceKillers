@@ -27,10 +27,10 @@ const std::string & Game::GetFontsFolder()
 
 Game::Game()
 	:
-	mWindow(),
-	mFrameTimeStamp(),
-	mFrameDelta(),
-	mReturnValue(0)
+	mWindow{},
+	mFrameTimeStamp{},
+	mFrameDelta{},
+	mReturnValue{}
 	{
 	if ( gpGame )
 		throw std::runtime_error("Game singleton violated.");
@@ -38,7 +38,7 @@ Game::Game()
 		gpGame = this;
 	gTwister.seed( unsigned long(time(nullptr)) );
 
-	mWindow.create(sf::VideoMode(800, 600), "Space Killers");
+	mWindow.create(sf::VideoMode{800, 600}, "Space Killers");
 
 	LoadGame();
 	
@@ -57,7 +57,7 @@ void Game::ResetGame()
 	mLasersPlayer.clear();
 	mLasersEnemy.clear();
 	mExplosions.clear();
-	timeDisplay.Reset(); 
+	mTextTimeDisplay.Reset();
 	}
 
 void Game::Update()
@@ -102,7 +102,7 @@ void Game::Draw()
 	// drawing score
 	
 	mWindow.draw(mTextScore, rstates);
-	mWindow.draw(mTextTimeSurvived, rstates); 
+	mWindow.draw(mTextTimeDisplay, rstates);
 	}
 
 void Game::MainLoop()
@@ -146,7 +146,7 @@ void Game::UpdateBackground()
 	{
 	// calculate how much to move the backgrounds by according to time passed.
 	sf::Vector2f moveBy{0.0f, 1.0f};
-	const float backgroundSpeed {25.0f};
+	const float backgroundSpeed = 25.0f;
 	moveBy *= backgroundSpeed * mFrameDelta.asSeconds();
 
 	// figure out which one is on bottom and place the other the correct distance on top
@@ -184,13 +184,13 @@ void Game::UpdateEnemies()
 	// levels are handled by the score
 	// base max enemies is 2, for every scoreRatio in points
 	// another max enemy is added.
-	unsigned int maxEnemies {2};
-	int scoreRatio {1000};
+	unsigned int maxEnemies = 2;
+	int scoreRatio = 1000;
 	int playerScore {mPlayer.GetScore()};
 	
 	maxEnemies += playerScore / scoreRatio;
 
-	static float spawnTrigger {};
+	static float spawnTrigger = 0.0f;
 	if ( spawnTrigger < mFrameTimeStamp.asSeconds() )
 		{
 		if(mEnemies.size() < maxEnemies )
@@ -222,7 +222,7 @@ void Game::UpdateLasers()
 	{
 	const sf::Vector2u windowSize{mWindow.getSize()};
 	// move lasers
-	const float playerLaserSpeed{750.f};
+	const float playerLaserSpeed = 750.f;
 	// Erase the lasers if they are off the play area completely on top and bottom
 	// if not erased then move them.
 	for(unsigned int i = 0; i < mLasersPlayer.size(); ++i)
@@ -326,23 +326,21 @@ void Game::UpdateGUI()
 	{
 	//gui related stuff here
 	mTextScore.setString(std::to_string(mPlayer.GetScore()));
-	timeDisplay.Update();
-	mTextTimeSurvived.setString( timeDisplay.getElapsedTime()); 
-
+	mTextTimeDisplay.Update();
 	}
 
 void Game::LoadGame()
-{
+	{
 	sf::Image backgroundImage{};
 	if (!backgroundImage.loadFromFile(GetTexturesFolder() + "backgroundStarsScalledCropped.png"))
-	{
+		{
 		throw std::runtime_error("Failed to load image.");
-	}
+		}
 	// create texture on graphics card from image ( copies the image from ram to graphics card memory )
 	if (!mBackgroundTex1.loadFromImage(backgroundImage))
-	{
+		{
 		throw std::runtime_error("Failed to load image.");
-	}
+		}
 
 	// flip the image in ram
 	backgroundImage.flipVertically();
@@ -408,11 +406,10 @@ void Game::LoadGame()
 	mTextScore.setCharacterSize(25);
 	mTextScore.setColor(sf::Color{ 200, 60, 60, 180 } );
 	
-	mTextTimeSurvived.setFont(mFontGUI);
-	mTextTimeSurvived.setPosition(sf::Vector2f{ 600.f, 10.f });
-	mTextTimeSurvived.setString(timeDisplay.getElapsedTime());
-	mTextTimeSurvived.setCharacterSize(25);
-	mTextTimeSurvived.setColor(sf::Color{ 200, 60, 60, 180 });
+	mTextTimeDisplay.setFont(mFontGUI);
+	mTextTimeDisplay.setPosition(sf::Vector2f{ 700.f, 10.f });
+	mTextTimeDisplay.setCharacterSize(25);
+	mTextTimeDisplay.setColor(sf::Color{ 200, 60, 60, 180 });
 	}
 
 void Game::CreateEnemyLaser(Enemy & enemy)
@@ -434,7 +431,7 @@ void Game::CreateEnemyLaser(Enemy & enemy)
 void Game::CreatePlayerLaser()
 	{
 	sf::Vector2f playerPos { mPlayer.getPosition() };
-	float playerHalfWidth {mPlayer.getGlobalBounds().width / 2.0f};
+	float playerHalfWidth = mPlayer.getGlobalBounds().width / 2.0f;
 
 	sf::Sprite laser {mLaserBlueTex};
 	laser.setScale(0.25f,0.25f);
