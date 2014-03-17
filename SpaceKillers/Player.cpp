@@ -64,7 +64,6 @@ void Player::Update()
 		if(mTriggerShootAgain <= frameTimeStamp)
 			{
 			gpGame->CreatePlayerLaser();
-			gpGame->GetScoreBoard().AddScore(-10); // each shot removes 10 points.
 
 			mTriggerShootAgain = frameTimeStamp + timeBetweenShots;
 			}

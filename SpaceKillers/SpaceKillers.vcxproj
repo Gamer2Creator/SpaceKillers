@@ -96,6 +96,7 @@
     <ClInclude Include="Enemy.hpp" />
     <ClInclude Include="Explosion.hpp" />
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="MathUtils.hpp" />
     <ClInclude Include="Player.hpp" />
     <ClInclude Include="ScoreBoard.hpp" />
     <ClInclude Include="TimeDisplay.hpp" />

@@ -1,5 +1,7 @@
 #include "Game.hpp"
 
+#include "MathUtils.hpp"
+
 #include <random>
 #include <ctime>
  
@@ -15,13 +17,13 @@ Game * gpGame = nullptr;
 
 const std::string & Game::GetTexturesFolder()
 	{
-	static const std::string texturesFolder{"../Resources/Textures/"};
+	static const std::string texturesFolder {"../Resources/Textures/"};
 	return texturesFolder;
 	}
 
 const std::string & Game::GetFontsFolder()
 	{
-	static const std::string fontsFolder{"../Resources/Fonts/"};
+	static const std::string fontsFolder {"../Resources/Fonts/"};
 	return fontsFolder;
 	}
 
@@ -33,7 +35,7 @@ Game::Game()
 	mReturnValue{}
 	{
 	if ( gpGame )
-		throw std::runtime_error("Game singleton violated.");
+		throw std::runtime_error{"Game singleton violated."};
 	else
 		gpGame = this;
 	gTwister.seed( unsigned long(time(nullptr)) );
@@ -52,7 +54,7 @@ Game::~Game()
 void Game::ResetGame()
 	{
 	mTextScoreBoard.SetScore(0);
-	mPlayer.setPosition( float(mWindow.getSize().x / 2), float(mWindow.getSize().y / 4 * 3));
+	mPlayer.setPosition( GetPlayerSpawnPosition() );
 	mEnemies.clear();
 	mLasersPlayer.clear();
 	mLasersEnemy.clear();
@@ -229,21 +231,17 @@ void Game::UpdateLasers()
 		{
 		// top remove code
 		const sf::FloatRect & laserBounds{mLasersPlayer[i].getGlobalBounds()};
-		if(laserBounds.top + laserBounds.height < 0.0f)
+		if(laserBounds.top + laserBounds.height < 0.0f
+			|| laserBounds.top > float(windowSize.y))
 			{
 			mLasersPlayer.erase(mLasersPlayer.begin() + i--);
-			continue;
-			}
-
-		// bottom remove code
-		if(laserBounds.top > float(windowSize.y))
-			{
-			mLasersPlayer.erase(mLasersPlayer.begin() + i--);
+			mTextScoreBoard.AddScore(-10);
 			continue;
 			}
 		mLasersPlayer[i].move(0.0f, -playerLaserSpeed * mFrameDelta.asSeconds());
 		}
 
+	// remove enemy lasers when outside the window
 	for(unsigned int i = 0; i < mLasersEnemy.size(); ++i )
 		{
 		const sf::FloatRect & laserBounds{mLasersEnemy[i].getGlobalBounds()};
@@ -364,7 +362,7 @@ void Game::LoadGame()
 	// setup player sprites texture scale and position
 	mPlayer.setTexture(mPlayerShipTex);
 	mPlayer.setScale(sf::Vector2f{ 0.25f, 0.25f } );
-	mPlayer.setPosition(sf::Vector2f{ ((mWindow.getSize().x / 2.0f) - float(mPlayer.getGlobalBounds().width) / 2.0f), mWindow.getSize().y - (mWindow.getSize().y / 4.0f) } );
+	mPlayer.setPosition(GetPlayerSpawnPosition());
 
 	// load players blue laser texture.
 	if (!mLaserBlueTex.loadFromFile(GetTexturesFolder() + "laserBlue.png"))
@@ -482,6 +480,16 @@ sf::Time Game::GetFrameTimeStamp() const
 sf::Time Game::GetFrameDelta() const
 	{
 	return mFrameDelta;
+	}
+
+sf::Vector2f Game::GetPlayerSpawnPosition() const
+	{
+	sf::Vector2f playerHalfWidth { GetHalfWidths(mPlayer.getGlobalBounds()) };
+	sf::Vector2f newPosition { mWindow.getSize() };
+	newPosition.x *= .5f;
+	newPosition.y *= .75f;
+	newPosition -= playerHalfWidth;
+	return newPosition;
 	}
 
 const Player & Game::GetPlayer() const

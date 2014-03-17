@@ -48,6 +48,8 @@ public:
 	sf::Time GetFrameTimeStamp() const;
 	sf::Time GetFrameDelta() const;
 
+	sf::Vector2f GetPlayerSpawnPosition() const;
+
 	const Player & GetPlayer() const;
 	ScoreBoard & GetScoreBoard();
 	const std::vector<sf::Sprite> & GetLasersPlayer() const;

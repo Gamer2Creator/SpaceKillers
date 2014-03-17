@@ -1,6 +1,7 @@
 #include "Enemy.hpp"
 
 #include "Game.hpp"
+#include "MathUtils.hpp"
 
 Enemy::Enemy()
 	:
@@ -67,12 +68,13 @@ void Enemy::Update()
 			if ( isPlayerInAreaOfAttack )
 				{
 				// calculate to move left or rigth depending on relative player position
-				if(areaOfAttack.left + (areaOfAttack.width / 2.0f) <= playerRect.left + (playerRect.width / 2.0f))
+				const RelativeSide relativeSide = GetSideLR(areaOfAttack, playerRect);
+				if(relativeSide == RelativeSide::Right)
 					{
 					mDecidedDirection.x = Random::FloatBetween(0.5f, 1.0f);
 					mDecidedDirection.y = Random::FloatBetween(0.5f, 1.0f);
 					}
-				else
+				else if(relativeSide == RelativeSide::Left)
 					{
 					mDecidedDirection.x = -Random::FloatBetween(0.5f, 1.0f);
 					mDecidedDirection.y = Random::FloatBetween(0.5f, 1.0f);
@@ -124,7 +126,7 @@ void Enemy::SetTriggerNextDecision( sf::Time timeTrigger )
 EvadeDir Enemy::GetEvadeDirection() const
 	{
 	// Get first shot in front of this enemy
-	const std::vector<sf::Sprite> & lasersPlayer {gpGame->GetLasersPlayer()};
+	auto & lasersPlayer = gpGame->GetLasersPlayer();
 
 	const sf::FloatRect & enemyRect {getGlobalBounds()};
 
@@ -146,8 +148,8 @@ EvadeDir Enemy::GetEvadeDirection() const
 			// must evade this object
 
 			// determine which direction to evade.
-			float enemyMidpointX = enemyRect.left + (enemyRect.width / 2.0f);
-			if ( enemyMidpointX <= laserRect.left + (laserRect.width / 2.0f) )
+			const RelativeSide relativeSide = GetSideLR(evadeAreaOfEffect, laserRect);
+			if(relativeSide == RelativeSide::Right)
 				{
 				// laser is on right half, so evade left.
 				return EvadeDir::Left;
