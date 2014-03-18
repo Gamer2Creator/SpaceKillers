@@ -32,7 +32,8 @@ Game::Game()
 	mWindow{},
 	mFrameTimeStamp{},
 	mFrameDelta{},
-	mReturnValue{}
+	mReturnValue{},
+	mBackgroundSpeed{25.f}
 	{
 	if ( gpGame )
 		throw std::runtime_error{"Game singleton violated."};
@@ -148,8 +149,7 @@ void Game::UpdateBackground()
 	{
 	// calculate how much to move the backgrounds by according to time passed.
 	sf::Vector2f moveBy{0.0f, 1.0f};
-	const float backgroundSpeed = 25.0f;
-	moveBy *= backgroundSpeed * mFrameDelta.asSeconds();
+	moveBy *= mBackgroundSpeed * mFrameDelta.asSeconds();
 
 	// figure out which one is on bottom and place the other the correct distance on top
 	if(mBackground1.getPosition().y > mBackground2.getPosition().y)
@@ -189,6 +189,7 @@ void Game::UpdateEnemies()
 	unsigned int maxEnemies = 2;
 	int scoreRatio = 1000;
 	int playerScore = mTextScoreBoard.GetScore();
+	sf::Vector2u windowSize = mWindow.getSize();
 	
 	maxEnemies += playerScore / scoreRatio;
 
@@ -200,7 +201,13 @@ void Game::UpdateEnemies()
 			Enemy newEnemy{};
 			newEnemy.setTexture(mEnemyShipTex);
 			newEnemy.setScale(0.25f, 0.25f);
-			newEnemy.setPosition(sf::Vector2f( Random::FloatBetween(0.0f, float(mWindow.getSize().x) - newEnemy.getGlobalBounds().width),-newEnemy.getGlobalBounds().height));
+			sf::FloatRect enemyRect = newEnemy.getGlobalBounds();
+
+			sf::Vector2f position;
+			position.x = Random::FloatBetween(0.0f, float(windowSize.x) - enemyRect.width );// random pos along x within bounds
+			position.y = -newEnemy.getGlobalBounds().height; // move it above the window = to it's height, bottom is 1 pixel above screen
+
+			newEnemy.setPosition(position);
 			mEnemies.emplace_back(newEnemy);
 			}
 		spawnTrigger = mFrameTimeStamp.asSeconds() + Random::FloatBetween(.5f, 5.f);
@@ -365,12 +372,12 @@ void Game::LoadGame()
 	mPlayer.setPosition(GetPlayerSpawnPosition());
 
 	// load players blue laser texture.
-	if (!mLaserBlueTex.loadFromFile(GetTexturesFolder() + "laserBlue.png"))
+	if (!mLaserBlueTex.loadFromFile(GetTexturesFolder() + "laserBlueSmaller.png"))
 		{
 		throw std::runtime_error("Failed to load image.");
 		}
 
-	if (!mLaserRedTex.loadFromFile(GetTexturesFolder() + "laserRed.png"))
+	if (!mLaserRedTex.loadFromFile(GetTexturesFolder() + "laserRedSmaller.png"))
 		{
 		throw std::runtime_error("Failed to load image.");
 		}
@@ -413,12 +420,18 @@ void Game::CreateEnemyLaser(Enemy & enemy)
 	sf::FloatRect enemyRect {enemy.getGlobalBounds()};
 	sf::Vector2f laserPos{};
 
-	sf::Sprite enemyLaser{mLaserRedTex};
+	Laser enemyLaser{};
+	enemyLaser.setTexture(mLaserRedTex);
 	enemyLaser.setScale(0.25f, 0.25f);
 	sf::FloatRect laserRect {enemyLaser.getGlobalBounds()};
 
-	laserPos.x = enemyRect.left + (enemyRect.width / 2.0f) - (laserRect.width / 2.0f );
-	laserPos.y = enemyRect.top + enemyRect.height + 2.0f;
+	sf::Vector2f enemyHalfWidth = GetHalfWidths(enemyRect);
+	sf::Vector2f laserHalfWidth = GetHalfWidths(laserRect);
+
+	laserPos.x = enemyRect.left + enemyHalfWidth.x - laserHalfWidth.x;
+	laserPos.y = enemyRect.top + enemyRect.height + 1.f;
+
+
 
 	enemyLaser.setPosition( laserPos );
 	mLasersEnemy.emplace_back(std::move(enemyLaser));
@@ -426,15 +439,19 @@ void Game::CreateEnemyLaser(Enemy & enemy)
 
 void Game::CreatePlayerLaser()
 	{
-	sf::Vector2f playerPos { mPlayer.getPosition() };
-	float playerHalfWidth = mPlayer.getGlobalBounds().width / 2.0f;
+	sf::FloatRect playerRect {mPlayer.getGlobalBounds()};
+	sf::Vector2f playerHalfWidths { GetHalfWidths(playerRect) };
 
-	sf::Sprite laser {mLaserBlueTex};
+	Laser laser {};
+	laser.setTexture(mLaserBlueTex);
 	laser.setScale(0.25f,0.25f);
 
+	sf::FloatRect laserRect { laser.getGlobalBounds() };
+	sf::Vector2f laserHalfWidths { GetHalfWidths(laserRect) };
+
 	sf::Vector2f startingLaserPos{};
-	startingLaserPos.x = playerPos.x + playerHalfWidth - (laser.getGlobalBounds().width / 2.0f);
-	startingLaserPos.y = playerPos.y - laser.getGlobalBounds().height - 2.0f;
+	startingLaserPos.x = playerRect.left + playerHalfWidths.x - laserHalfWidths.x;
+	startingLaserPos.y = playerRect.top - laserRect.height - 1.f;
 	laser.setPosition( startingLaserPos );
 	mLasersPlayer.emplace_back( std::move( laser ) );
 	}
@@ -447,8 +464,14 @@ void Game::CreateExplosionShip(const sf::FloatRect & destroyedObjectRect)
 	exp.setTextureRect( sf::IntRect(0,0, 64, 64) );
 	exp.setPosition(destroyedObjectRect.left, destroyedObjectRect.top);
 	const sf::FloatRect & expRect {exp.getGlobalBounds()};
-	exp.setScale(destroyedObjectRect.width / expRect.width, destroyedObjectRect.height / expRect.height);
-	//exp.setScale(expRect.width / destroyedObjectRect.width, expRect.height / );
+
+	// start with dimensions of the destroyed object, divide by the dimensions of the explosion rect
+	// the result is how much to scale the explosion rect to make it the size of the destroyed object rect.
+	sf::Vector2f scales{ destroyedObjectRect.width, destroyedObjectRect.height };
+	scales.x /= expRect.width;
+	scales.y /= expRect.height;
+
+	exp.setScale(scales);
 	
 	mExplosions.emplace_back(std::move(exp));
 	}
@@ -462,7 +485,12 @@ void Game::CreateExplosionLaser(const sf::FloatRect & destroyedLaserRect )
 	exp.setPosition( destroyedLaserRect.left, destroyedLaserRect.top );
 	const sf::FloatRect & expRect {exp.getGlobalBounds()};
 
-	exp.setScale(destroyedLaserRect.width / expRect.width * 2.0f, destroyedLaserRect.height / expRect.height * 2.0f);
+	sf::Vector2f scales( destroyedLaserRect.width, destroyedLaserRect.height );
+	scales.x /= expRect.width;
+	scales.y /= expRect.height;
+	scales *= 2.0f;
+
+	exp.setScale(scales);
 	
 	mExplosions.emplace_back(std::move(exp));
 	}
@@ -484,11 +512,11 @@ sf::Time Game::GetFrameDelta() const
 
 sf::Vector2f Game::GetPlayerSpawnPosition() const
 	{
-	sf::Vector2f playerHalfWidth { GetHalfWidths(mPlayer.getGlobalBounds()) };
-	sf::Vector2f newPosition { mWindow.getSize() };
-	newPosition.x *= .5f;
-	newPosition.y *= .75f;
-	newPosition -= playerHalfWidth;
+	const sf::Vector2f playerHalfWidth { GetHalfWidths(mPlayer.getGlobalBounds()) };
+	sf::Vector2f newPosition { mWindow.getSize() }; // convert the windows Vector2u to Vector2f
+	newPosition.x *= .5f;  // half the width
+	newPosition.y *= .75f; // 3/4 the height
+	newPosition -= playerHalfWidth; // minus half the players width ( centering it )
 	return newPosition;
 	}
 
@@ -502,7 +530,7 @@ ScoreBoard & Game::GetScoreBoard()
 	return mTextScoreBoard;
 	}
 
-const std::vector<sf::Sprite> & Game::GetLasersPlayer() const
+const std::vector<Laser> & Game::GetLasersPlayer() const
 	{
 	return mLasersPlayer;
 	}

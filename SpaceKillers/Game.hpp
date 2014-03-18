@@ -1,9 +1,11 @@
 #pragma once
-#include "TimeDisplay.hpp"
+
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "Laser.hpp"
 #include "Explosion.hpp"
 #include "ScoreBoard.hpp"
+#include "TimeDisplay.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -52,7 +54,7 @@ public:
 
 	const Player & GetPlayer() const;
 	ScoreBoard & GetScoreBoard();
-	const std::vector<sf::Sprite> & GetLasersPlayer() const;
+	const std::vector<Laser> & GetLasersPlayer() const;
 
 protected:
 	sf::RenderWindow mWindow;
@@ -61,6 +63,7 @@ protected:
 	sf::Time mFrameDelta;
 
 	int mReturnValue;
+	float mBackgroundSpeed;
 
 	// textures
 	sf::Texture mBackgroundTex1;
@@ -88,8 +91,8 @@ protected:
 	Player mPlayer;
 
 	std::vector< Enemy > mEnemies;
-	std::vector< sf::Sprite > mLasersPlayer;
-	std::vector< sf::Sprite > mLasersEnemy;
+	std::vector< Laser > mLasersPlayer;
+	std::vector< Laser > mLasersEnemy;
 	std::vector< Explosion > mExplosions;
 };
 
