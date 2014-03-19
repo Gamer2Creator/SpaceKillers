@@ -10,6 +10,15 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 
+enum class State
+{
+Null = 0,
+MainMenu,
+Playing,
+Paused,
+Dead,
+};
+
 namespace Random
 {
 float FloatBetween( float low = 0.0f, float high = 1.0f );
@@ -49,6 +58,7 @@ public:
 	const sf::RenderWindow & GetWindow() const;
 	sf::Time GetFrameTimeStamp() const;
 	sf::Time GetFrameDelta() const;
+	sf::Time GetFrameDeltaFixed() const;
 
 	sf::Vector2f GetPlayerSpawnPosition() const;
 
@@ -61,6 +71,7 @@ protected:
 
 	sf::Time mFrameTimeStamp;
 	sf::Time mFrameDelta;
+	sf::Time mFrameDeltaFixed;
 
 	int mReturnValue;
 	float mBackgroundSpeed;

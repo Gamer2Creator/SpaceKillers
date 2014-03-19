@@ -20,7 +20,7 @@ Enemy::~Enemy()
 void Enemy::Update()
 	{
 	// get time information
-	const sf::Time & frameDelta {gpGame->GetFrameDelta()};
+	const sf::Time & frameDelta {gpGame->GetFrameDeltaFixed()};
 	const sf::Time & frameStamp {gpGame->GetFrameTimeStamp()};
 
 	// get the direction to evade if there is nothing to evade EvadeDir::Null is returned.

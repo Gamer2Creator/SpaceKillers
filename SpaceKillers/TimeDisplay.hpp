@@ -16,6 +16,6 @@ public:
 	void Reset(); 
 
 protected:
-	sf::Time mStartTime;
+	sf::Time mTimePassed;
 };
 

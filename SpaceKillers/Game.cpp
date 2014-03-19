@@ -32,6 +32,7 @@ Game::Game()
 	mWindow{},
 	mFrameTimeStamp{},
 	mFrameDelta{},
+	mFrameDeltaFixed{ sf::seconds(1.0f) / 60.0f },
 	mReturnValue{},
 	mBackgroundSpeed{25.f}
 	{
@@ -113,6 +114,7 @@ void Game::MainLoop()
 	sf::Event evt;
 	sf::Clock clock;
 	mFrameTimeStamp = clock.getElapsedTime();
+	sf::Time lastUpdateTimeStamp = mFrameTimeStamp;
 	while(mWindow.isOpen())
 		{
 		while(mWindow.pollEvent(evt))
@@ -133,7 +135,13 @@ void Game::MainLoop()
 		sf::Time now {clock.getElapsedTime()};
 		mFrameDelta = now - mFrameTimeStamp;
 		mFrameTimeStamp = now;
-		Update();
+
+		if(lastUpdateTimeStamp + mFrameDeltaFixed <= mFrameTimeStamp)
+			{
+			Update();
+			lastUpdateTimeStamp = clock.getElapsedTime();
+			}
+
 		Draw();
 		mWindow.display();
 		mWindow.clear(sf::Color(100, 100, 100, 255));
@@ -149,7 +157,7 @@ void Game::UpdateBackground()
 	{
 	// calculate how much to move the backgrounds by according to time passed.
 	sf::Vector2f moveBy{0.0f, 1.0f};
-	moveBy *= mBackgroundSpeed * mFrameDelta.asSeconds();
+	moveBy *= mBackgroundSpeed * mFrameDeltaFixed.asSeconds();
 
 	// figure out which one is on bottom and place the other the correct distance on top
 	if(mBackground1.getPosition().y > mBackground2.getPosition().y)
@@ -231,21 +239,20 @@ void Game::UpdateLasers()
 	{
 	const sf::Vector2u windowSize{mWindow.getSize()};
 	// move lasers
-	const float playerLaserSpeed = 750.f;
 	// Erase the lasers if they are off the play area completely on top and bottom
 	// if not erased then move them.
 	for(unsigned int i = 0; i < mLasersPlayer.size(); ++i)
 		{
 		// top remove code
-		const sf::FloatRect & laserBounds{mLasersPlayer[i].getGlobalBounds()};
+		const sf::FloatRect & laserBounds {mLasersPlayer[i].getGlobalBounds()};
 		if(laserBounds.top + laserBounds.height < 0.0f
 			|| laserBounds.top > float(windowSize.y))
 			{
-			mLasersPlayer.erase(mLasersPlayer.begin() + i--);
+			mLasersPlayer.erase(mLasersPlayer.begin() + i--); 
 			mTextScoreBoard.AddScore(-10);
 			continue;
 			}
-		mLasersPlayer[i].move(0.0f, -playerLaserSpeed * mFrameDelta.asSeconds());
+		mLasersPlayer[i].move(0.0f, -mLasersPlayer[i].GetSpeed() * mFrameDeltaFixed.asSeconds());
 		}
 
 	// remove enemy lasers when outside the window
@@ -262,7 +269,7 @@ void Game::UpdateLasers()
 			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
 			continue;
 			}
-		mLasersEnemy[i].move(0.0f, playerLaserSpeed * mFrameDelta.asSeconds());
+		mLasersEnemy[i].move(0.0f, mLasersEnemy[i].GetSpeed() * mFrameDeltaFixed.asSeconds());
 
 		if ( mLasersEnemy[i].getGlobalBounds().intersects(mPlayer.getGlobalBounds()) )
 			{
@@ -508,6 +515,11 @@ sf::Time Game::GetFrameTimeStamp() const
 sf::Time Game::GetFrameDelta() const
 	{
 	return mFrameDelta;
+	}
+
+sf::Time Game::GetFrameDeltaFixed() const
+	{
+	return mFrameDeltaFixed;
 	}
 
 sf::Vector2f Game::GetPlayerSpawnPosition() const

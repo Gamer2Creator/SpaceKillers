@@ -5,8 +5,11 @@
 class Laser : public sf::Sprite
 {
 public:
-	Laser(const float speed = 750);
+	Laser(const float speed = 750.0f);
 	virtual ~Laser();
+
+	float GetSpeed() const;
+	void SetSpeed( const float speed );
 
 protected:
 	float mSpeed;

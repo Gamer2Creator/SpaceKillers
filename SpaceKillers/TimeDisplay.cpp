@@ -3,7 +3,7 @@
 TimeDisplay::TimeDisplay()
 	:
 	sf::Text{},
-	mStartTime{ }
+	mTimePassed{sf::milliseconds(0)}
 	{
 	}
 
@@ -14,9 +14,9 @@ TimeDisplay::~TimeDisplay()
 
 void TimeDisplay::Update()
 	{
-	sf::Time elapsedTime { GetElapsedTime() };
+	mTimePassed += gpGame->GetFrameDeltaFixed();
 
-	int milliseconds = elapsedTime.asMilliseconds();
+	int milliseconds = mTimePassed.asMilliseconds();
 
 	static const int minuteMillis = 60 * 1000;
 
@@ -32,25 +32,15 @@ void TimeDisplay::Update()
 	elapsedTimeString += std::to_string(seconds);
 
 	setString( elapsedTimeString );
-	/*
-	seconds += gpGame->GetFrameDelta().asSeconds();
-	
-	if (((int)seconds / 60) == 1)
-		{
-		minutes += 1.f;
-		seconds = 0;
-		}
-	
-	strElapsedTime = std::to_string((int)minutes) + " : " + std::to_string((int)seconds);
-	*/
 	}
 
 sf::Time TimeDisplay::GetElapsedTime() const
 	{
-	return gpGame->GetFrameTimeStamp() - mStartTime;
+	return mTimePassed;
 	}
+
 void TimeDisplay::Reset()
 	{
-	mStartTime = gpGame->GetFrameTimeStamp();
+	mTimePassed = sf::milliseconds(0);
 	}
 
