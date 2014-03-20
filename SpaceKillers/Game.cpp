@@ -30,6 +30,7 @@ const std::string & Game::GetFontsFolder()
 Game::Game()
 	:
 	mWindow{},
+	mCurrentState{State::Playing},
 	mFrameTimeStamp{},
 	mFrameDelta{},
 	mFrameDeltaFixed{ sf::seconds(1.0f) / 60.0f },
@@ -64,7 +65,50 @@ void Game::ResetGame()
 	mTextTimeDisplay.Reset();
 	}
 
-void Game::Update()
+void Game::UpdateState()
+	{
+	switch(mCurrentState)
+		{
+		case State::MainMenu:
+			{
+			UpdateStateMainMenu();
+			break;
+			}
+		case State::Playing:
+			{
+			UpdateStatePlaying();
+			break;
+			}
+		default:
+			{
+			throw std::runtime_error("Unknown state, " + std::to_string(static_cast<int>(mCurrentState)) );
+			break;
+			}
+		}
+	}
+
+void Game::DrawState()
+	{
+	switch(mCurrentState)
+		{
+		case State::MainMenu:
+			{
+			DrawStateMainMenu();
+			break;
+			}
+		case State::Playing:
+			{
+			DrawStatePlaying();
+			break;
+			}
+		default:
+			{
+			throw std::runtime_error("Unknown state, " + std::to_string(static_cast<int>(mCurrentState)) );
+			}
+		}
+	}
+
+void Game::UpdateStatePlaying()
 	{
 	UpdateBackground();
 	UpdatePlayer();
@@ -74,7 +118,7 @@ void Game::Update()
 	UpdateGUI(); 
 	}
 
-void Game::Draw()
+void Game::DrawStatePlaying()
 	{
 	sf::RenderStates rstates{sf::BlendMode::BlendAlpha};
 	mWindow.draw(mBackground1, rstates);
@@ -109,6 +153,16 @@ void Game::Draw()
 	mWindow.draw(mTextTimeDisplay, rstates);
 	}
 
+void Game::UpdateStateMainMenu()
+	{
+
+	}
+
+void Game::DrawStateMainMenu()
+	{
+
+	}
+
 void Game::MainLoop()
 	{
 	sf::Event evt;
@@ -138,11 +192,12 @@ void Game::MainLoop()
 
 		if(lastUpdateTimeStamp + mFrameDeltaFixed <= mFrameTimeStamp)
 			{
-			Update();
+			UpdateState();
+			
 			lastUpdateTimeStamp = clock.getElapsedTime();
 			}
 
-		Draw();
+		DrawState();
 		mWindow.display();
 		mWindow.clear(sf::Color(100, 100, 100, 255));
 		}
@@ -437,8 +492,6 @@ void Game::CreateEnemyLaser(Enemy & enemy)
 
 	laserPos.x = enemyRect.left + enemyHalfWidth.x - laserHalfWidth.x;
 	laserPos.y = enemyRect.top + enemyRect.height + 1.f;
-
-
 
 	enemyLaser.setPosition( laserPos );
 	mLasersEnemy.emplace_back(std::move(enemyLaser));

@@ -36,9 +36,18 @@ public:
 	int GetReturnValue() const;
 
 	void ResetGame();
+	
+	// state code
+	void UpdateState();
+	void DrawState();
 
-	void Update();
-	void Draw();
+	// Main Menu state
+	void UpdateStateMainMenu();
+	void DrawStateMainMenu();
+
+	// Playing state
+	void UpdateStatePlaying();
+	void DrawStatePlaying();
 
 	void UpdateBackground();
 	void UpdatePlayer();
@@ -68,6 +77,8 @@ public:
 
 protected:
 	sf::RenderWindow mWindow;
+
+	State mCurrentState;
 
 	sf::Time mFrameTimeStamp;
 	sf::Time mFrameDelta;
