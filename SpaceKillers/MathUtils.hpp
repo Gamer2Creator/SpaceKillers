@@ -8,7 +8,16 @@ enum class RelativeSide
 	Left,
 	Right,
 	Up,
-	Down
+	Down,
+	};
+
+enum class RelativeCorner
+	{
+	Null,
+	TopLeft,
+	TopRight,
+	BottomLeft,
+	BottomRight
 	};
 
 // the return is based on the second objects relative position

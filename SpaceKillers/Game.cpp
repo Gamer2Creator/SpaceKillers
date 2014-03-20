@@ -33,7 +33,7 @@ Game::Game()
 	mCurrentState{State::Playing},
 	mFrameTimeStamp{},
 	mFrameDelta{},
-	mFrameDeltaFixed{ sf::seconds(1.0f) / 60.0f },
+	mFrameDeltaFixed{ sf::seconds(1.0f / 120.0f) },
 	mReturnValue{},
 	mBackgroundSpeed{25.f}
 	{
@@ -46,7 +46,6 @@ Game::Game()
 	mWindow.create(sf::VideoMode{800, 600}, "Space Killers");
 
 	LoadGame();
-	
 	}
 
 Game::~Game()
@@ -165,10 +164,10 @@ void Game::DrawStateMainMenu()
 
 void Game::MainLoop()
 	{
-	sf::Event evt;
-	sf::Clock clock;
+	sf::Event evt{};
+	sf::Clock clock{};
 	mFrameTimeStamp = clock.getElapsedTime();
-	sf::Time lastUpdateTimeStamp = mFrameTimeStamp;
+	sf::Time lastUpdateTimeStamp {mFrameTimeStamp};
 	while(mWindow.isOpen())
 		{
 		while(mWindow.pollEvent(evt))
@@ -211,7 +210,7 @@ int Game::GetReturnValue() const
 void Game::UpdateBackground()
 	{
 	// calculate how much to move the backgrounds by according to time passed.
-	sf::Vector2f moveBy{0.0f, 1.0f};
+	sf::Vector2f moveBy {0.0f, 1.0f};
 	moveBy *= mBackgroundSpeed * mFrameDeltaFixed.asSeconds();
 
 	// figure out which one is on bottom and place the other the correct distance on top
@@ -252,7 +251,7 @@ void Game::UpdateEnemies()
 	unsigned int maxEnemies = 2;
 	int scoreRatio = 1000;
 	int playerScore = mTextScoreBoard.GetScore();
-	sf::Vector2u windowSize = mWindow.getSize();
+	sf::Vector2u windowSize {mWindow.getSize()};
 	
 	maxEnemies += playerScore / scoreRatio;
 
@@ -264,9 +263,9 @@ void Game::UpdateEnemies()
 			Enemy newEnemy{};
 			newEnemy.setTexture(mEnemyShipTex);
 			newEnemy.setScale(0.25f, 0.25f);
-			sf::FloatRect enemyRect = newEnemy.getGlobalBounds();
+			sf::FloatRect enemyRect {newEnemy.getGlobalBounds()};
 
-			sf::Vector2f position;
+			sf::Vector2f position {};
 			position.x = Random::FloatBetween(0.0f, float(windowSize.x) - enemyRect.width );// random pos along x within bounds
 			position.y = -newEnemy.getGlobalBounds().height; // move it above the window = to it's height, bottom is 1 pixel above screen
 
@@ -292,7 +291,7 @@ void Game::UpdateEnemies()
 
 void Game::UpdateLasers()
 	{
-	const sf::Vector2u windowSize{mWindow.getSize()};
+	const sf::Vector2u windowSize {mWindow.getSize()};
 	// move lasers
 	// Erase the lasers if they are off the play area completely on top and bottom
 	// if not erased then move them.
@@ -313,7 +312,7 @@ void Game::UpdateLasers()
 	// remove enemy lasers when outside the window
 	for(unsigned int i = 0; i < mLasersEnemy.size(); ++i )
 		{
-		const sf::FloatRect & laserBounds{mLasersEnemy[i].getGlobalBounds()};
+		const sf::FloatRect & laserBounds {mLasersEnemy[i].getGlobalBounds()};
 		if(laserBounds.top + laserBounds.height < 0.0f )
 			{
 			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
@@ -477,7 +476,7 @@ void Game::LoadGame()
 	mTextTimeDisplay.setColor(sf::Color{ 200, 60, 60, 180 });
 	}
 
-void Game::CreateEnemyLaser(Enemy & enemy)
+void Game::CreateEnemyLaser(const Enemy & enemy)
 	{
 	sf::FloatRect enemyRect {enemy.getGlobalBounds()};
 	sf::Vector2f laserPos{};
@@ -487,8 +486,8 @@ void Game::CreateEnemyLaser(Enemy & enemy)
 	enemyLaser.setScale(0.25f, 0.25f);
 	sf::FloatRect laserRect {enemyLaser.getGlobalBounds()};
 
-	sf::Vector2f enemyHalfWidth = GetHalfWidths(enemyRect);
-	sf::Vector2f laserHalfWidth = GetHalfWidths(laserRect);
+	sf::Vector2f enemyHalfWidth {GetHalfWidths(enemyRect)};
+	sf::Vector2f laserHalfWidth {GetHalfWidths(laserRect)};
 
 	laserPos.x = enemyRect.left + enemyHalfWidth.x - laserHalfWidth.x;
 	laserPos.y = enemyRect.top + enemyRect.height + 1.f;
@@ -577,7 +576,7 @@ sf::Time Game::GetFrameDeltaFixed() const
 
 sf::Vector2f Game::GetPlayerSpawnPosition() const
 	{
-	const sf::Vector2f playerHalfWidth { GetHalfWidths(mPlayer.getGlobalBounds()) };
+	const sf::Vector2f & playerHalfWidth { GetHalfWidths(mPlayer.getGlobalBounds()) };
 	sf::Vector2f newPosition { mWindow.getSize() }; // convert the windows Vector2u to Vector2f
 	newPosition.x *= .5f;  // half the width
 	newPosition.y *= .75f; // 3/4 the height

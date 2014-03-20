@@ -22,7 +22,7 @@ Dead,
 namespace Random
 {
 float FloatBetween( float low = 0.0f, float high = 1.0f );
-}
+} 
 
 class Game
 {
@@ -56,7 +56,7 @@ public:
 	void UpdateExplosions();
 	void UpdateGUI(); 
 
-	void CreateEnemyLaser(Enemy & enemy);
+	void CreateEnemyLaser(const Enemy & enemy);
 	void CreatePlayerLaser();
 	void CreateExplosionShip( const sf::FloatRect & destroyedObjectRect );
 	void CreateExplosionLaser( const sf::FloatRect & destroyedLaserRect );
