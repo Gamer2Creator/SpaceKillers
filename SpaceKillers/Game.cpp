@@ -30,7 +30,7 @@ const std::string & Game::GetFontsFolder()
 Game::Game()
 	:
 	mWindow{},
-	mCurrentState{State::Playing},
+	mCurrentState{State::MainMenu},
 	mFrameTimeStamp{},
 	mFrameDelta{},
 	mFrameDeltaFixed{ sf::seconds(1.0f / 120.0f) },
@@ -78,6 +78,11 @@ void Game::UpdateState()
 			UpdateStatePlaying();
 			break;
 			}
+		case State::Dead:
+			{
+			UpdateStateDead();
+			break;
+			}
 		default:
 			{
 			throw std::runtime_error("Unknown state, " + std::to_string(static_cast<int>(mCurrentState)) );
@@ -99,6 +104,10 @@ void Game::DrawState()
 			{
 			DrawStatePlaying();
 			break;
+			}
+		case State::Dead:
+			{
+			DrawStateDead();
 			}
 		default:
 			{
@@ -154,10 +163,29 @@ void Game::DrawStatePlaying()
 
 void Game::UpdateStateMainMenu()
 	{
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Return ) )
+		{
+		ResetGame();
+		mCurrentState = State::Playing;
+		}
+	float frameStamp = mFrameTimeStamp.asSeconds();
 
+	auto textColor = mTextWelcome.getColor();
+	textColor.a = char( abs(255.0f * sin(frameStamp)) );
 	}
 
 void Game::DrawStateMainMenu()
+	{
+	sf::RenderStates rstates{ sf::BlendMode::BlendAlpha };
+	mWindow.draw(mTextWelcome,rstates);
+	}
+
+void Game::UpdateStateDead()
+	{
+
+	}
+
+void Game::DrawStateDead()
 	{
 
 	}
@@ -474,6 +502,17 @@ void Game::LoadGame()
 	mTextTimeDisplay.setPosition(sf::Vector2f{ 700.f, 10.f });
 	mTextTimeDisplay.setCharacterSize(25);
 	mTextTimeDisplay.setColor(sf::Color{ 200, 60, 60, 180 });
+
+	mTextWelcome.setFont(mFontGUI);
+	mTextWelcome.setCharacterSize(25);
+	mTextWelcome.setColor(sf::Color{ 200, 60, 60, 180 });
+	mTextWelcome.setString("Space Killers!\nPress enter key to play.");
+	sf::FloatRect welcomeRect {mTextWelcome.getGlobalBounds()};
+	sf::Vector2f windowSize { mWindow.getSize() };
+	sf::Vector2f welcomeCenteredPos {};
+	welcomeCenteredPos.x = float(windowSize.x / 2) - (welcomeRect.width / 2.0f);
+	welcomeCenteredPos.y = float(windowSize.y / 2) - (welcomeRect.height / 2.0f);
+	mTextWelcome.setPosition(welcomeCenteredPos);
 	}
 
 void Game::CreateEnemyLaser(const Enemy & enemy)

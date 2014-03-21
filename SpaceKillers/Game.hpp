@@ -11,13 +11,13 @@
 #include "SFML/Window.hpp"
 
 enum class State
-{
-Null = 0,
-MainMenu,
-Playing,
-Paused,
-Dead,
-};
+	{
+	Null = 0,
+	MainMenu,
+	Playing,
+	Paused,
+	Dead,
+	};
 
 namespace Random
 {
@@ -48,6 +48,10 @@ public:
 	// Playing state
 	void UpdateStatePlaying();
 	void DrawStatePlaying();
+
+	// Dead state
+	void UpdateStateDead();
+	void DrawStateDead();
 
 	void UpdateBackground();
 	void UpdatePlayer();
@@ -108,7 +112,8 @@ protected:
 
 	// gui text
 	ScoreBoard mTextScoreBoard;
-	TimeDisplay mTextTimeDisplay; 
+	TimeDisplay mTextTimeDisplay;
+	sf::Text mTextWelcome;
 
 	Player mPlayer;
 

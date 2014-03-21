@@ -9,7 +9,7 @@ class TimeDisplay : public sf::Text
 {
 public:
 	TimeDisplay();
-	~TimeDisplay();
+	virtual ~TimeDisplay();
 
 	void Update(); 
 	sf::Time GetElapsedTime() const;

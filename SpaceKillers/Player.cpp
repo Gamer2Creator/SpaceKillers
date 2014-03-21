@@ -19,7 +19,7 @@ Player::~Player()
 
 void Player::Update()
 	{
-	sf::Time frameDelta{ gpGame->GetFrameDeltaFixed() };
+	sf::Time frameDelta {gpGame->GetFrameDeltaFixed() };
 	sf::Time frameTimeStamp {gpGame->GetFrameTimeStamp()};
 	const float playerSpeed = 250.0f;
 	float playerBoost = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ? 1.5f : 1.0f;

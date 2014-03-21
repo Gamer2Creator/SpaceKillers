@@ -5,11 +5,13 @@ TimeDisplay::TimeDisplay()
 	sf::Text{},
 	mTimePassed{sf::milliseconds(0)}
 	{
+
 	}
 
 
 TimeDisplay::~TimeDisplay()
 	{
+
 	}
 
 void TimeDisplay::Update()
@@ -26,7 +28,8 @@ void TimeDisplay::Update()
 	std::string elapsedTimeString{};
 	elapsedTimeString.reserve(10);
 	
-	elapsedTimeString = std::to_string(minutes) + ":";
+	elapsedTimeString = std::to_string(minutes);
+	elapsedTimeString += ':';
 	if ( seconds < 10 )
 		elapsedTimeString.push_back('0');
 	elapsedTimeString += std::to_string(seconds);

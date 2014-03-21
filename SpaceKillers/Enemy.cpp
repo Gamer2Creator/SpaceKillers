@@ -30,7 +30,7 @@ void Enemy::Update()
 	const sf::FloatRect playerRect {gpGame->GetPlayer().getGlobalBounds()};
 
 	// this rect represents the area the enemy considers the player in his sights.
-	const float growWidth = 2.0f * enemyRect.width;
+	const float growWidth = 2.0f * enemyRect.width; 
 	
 	// creating the rect which describes the area of attack, which is the area the enemy is aware of and will seek the player within.
 	const sf::FloatRect areaOfAttack{enemyRect.left - (growWidth / 2.0f),
