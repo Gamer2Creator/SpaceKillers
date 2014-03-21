@@ -169,9 +169,9 @@ void Game::UpdateStateMainMenu()
 		mCurrentState = State::Playing;
 		}
 	float frameStamp = mFrameTimeStamp.asSeconds();
-
-	auto textColor = mTextWelcome.getColor();
+	sf::Color textColor = mTextWelcome.getColor();
 	textColor.a = char( abs(255.0f * sin(frameStamp)) );
+	mTextWelcome.setColor(textColor);
 	}
 
 void Game::DrawStateMainMenu()
