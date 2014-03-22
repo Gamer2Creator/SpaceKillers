@@ -108,6 +108,7 @@ void Game::DrawState()
 		case State::Dead:
 			{
 			DrawStateDead();
+			break;
 			}
 		default:
 			{
@@ -129,36 +130,15 @@ void Game::UpdateStatePlaying()
 void Game::DrawStatePlaying()
 	{
 	sf::RenderStates rstates{sf::BlendMode::BlendAlpha};
-	mWindow.draw(mBackground1, rstates);
-	mWindow.draw(mBackground2, rstates);
-
-	mWindow.draw(mPlayer, rstates);
-
-	for(auto & enemy : mEnemies)
-		{
-		mWindow.draw(enemy, rstates);
-		}
-
-	for(auto & playerLaser : mLasersPlayer )
-		{
-		mWindow.draw(playerLaser, rstates);
-		}
-
-	for(auto & enemyLaser : mLasersEnemy)
-		{
-		mWindow.draw(enemyLaser, rstates);
-		}
-
-	for ( auto & explosion : mExplosions )
-		{
-		mWindow.draw(explosion, rstates);
-		}
-
-	// draw gui stuff last
-	// drawing score
 	
-	mWindow.draw(mTextScoreBoard, rstates);
-	mWindow.draw(mTextTimeDisplay, rstates);
+	DrawBackgrounds(rstates);
+	DrawPlayer(rstates);
+	DrawEnemies(rstates);
+	DrawLasers(rstates);
+	DrawExplosions(rstates);
+	DrawGUI(rstates);
+
+	DrawGUI(rstates);
 	}
 
 void Game::UpdateStateMainMenu()
@@ -169,25 +149,56 @@ void Game::UpdateStateMainMenu()
 		mCurrentState = State::Playing;
 		}
 	float frameStamp = mFrameTimeStamp.asSeconds();
-	sf::Color textColor = mTextWelcome.getColor();
+	sf::Color textColor = mTextInfo.getColor();
 	textColor.a = char( abs(255.0f * sin(frameStamp)) );
-	mTextWelcome.setColor(textColor);
+	mTextInfo.setColor(textColor);
+
+	UpdateBackground();
 	}
 
 void Game::DrawStateMainMenu()
 	{
 	sf::RenderStates rstates{ sf::BlendMode::BlendAlpha };
-	mWindow.draw(mTextWelcome,rstates);
+
+	DrawBackgrounds(rstates);
+
+	DrawInfoText(rstates);
 	}
 
 void Game::UpdateStateDead()
 	{
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Return ) )
+		{
+		ResetGame();
+		mCurrentState = State::Playing;
+		}
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Escape ) )
+		{
+		mWindow.close();
+		}
 
+	float frameStamp = mFrameTimeStamp.asSeconds();
+	sf::Color textColor = mTextInfo.getColor();
+	textColor.a = char(abs(255.0f * sin(frameStamp)));
+	mTextInfo.setColor(textColor);
+	mTextInfo.setString("You died!\n\nEnter to play again\nEscape to exit.");
+
+	UpdateBackground();
+	UpdateEnemies();
+	UpdateLasers();
+	UpdateExplosions();
 	}
 
 void Game::DrawStateDead()
 	{
+	sf::RenderStates rstates( sf::BlendMode::BlendAlpha );
 
+	DrawBackgrounds(rstates);
+	DrawLasers(rstates);
+	DrawEnemies(rstates);
+	DrawExplosions(rstates);
+	DrawGUI(rstates);
+	DrawInfoText(rstates);
 	}
 
 void Game::MainLoop()
@@ -355,7 +366,10 @@ void Game::UpdateLasers()
 
 		if ( mLasersEnemy[i].getGlobalBounds().intersects(mPlayer.getGlobalBounds()) )
 			{
-			ResetGame();
+			mCurrentState = State::Dead;
+			CreateExplosionShip(mPlayer.getGlobalBounds());
+			mPlayer.setPosition(0.0, -mPlayer.getGlobalBounds().height * 2.0f); // move player out of bounds
+			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
 			}
 		}
 
@@ -420,6 +434,57 @@ void Game::UpdateGUI()
 	{
 	//gui related stuff here
 	mTextTimeDisplay.Update();
+	}
+
+void Game::DrawBackgrounds(const sf::RenderStates & rstates)
+	{
+	mWindow.draw(mBackground1, rstates);
+	mWindow.draw(mBackground2, rstates);
+	}
+
+void Game::DrawPlayer(const sf::RenderStates & rstates)
+	{
+	mWindow.draw(mPlayer, rstates);
+	}
+
+void Game::DrawEnemies(const sf::RenderStates & rstates)
+	{
+	for(auto & enemy : mEnemies)
+		{
+		mWindow.draw(enemy, rstates);
+		}
+	}
+
+void Game::DrawLasers(const sf::RenderStates & rstates)
+	{
+	for(auto & laser : mLasersEnemy)
+		{
+		mWindow.draw(laser, rstates);
+		}
+
+	for(auto & laser : mLasersPlayer)
+		{
+		mWindow.draw(laser,rstates);
+		}
+	}
+
+void Game::DrawExplosions(const sf::RenderStates & rstates)
+	{
+	for ( auto & explosion : mExplosions )
+		{
+		mWindow.draw(explosion,rstates);
+		}
+	}
+
+void Game::DrawGUI(const sf::RenderStates & rstates)
+	{
+	mWindow.draw(mTextScoreBoard, rstates);
+	mWindow.draw(mTextTimeDisplay, rstates);
+	}
+
+void Game::DrawInfoText(const sf::RenderStates & rstates)
+	{
+	mWindow.draw(mTextInfo, rstates);
 	}
 
 void Game::LoadGame()
@@ -503,16 +568,16 @@ void Game::LoadGame()
 	mTextTimeDisplay.setCharacterSize(25);
 	mTextTimeDisplay.setColor(sf::Color{ 200, 60, 60, 180 });
 
-	mTextWelcome.setFont(mFontGUI);
-	mTextWelcome.setCharacterSize(25);
-	mTextWelcome.setColor(sf::Color{ 200, 60, 60, 180 });
-	mTextWelcome.setString("Space Killers!\nPress enter key to play.");
-	sf::FloatRect welcomeRect {mTextWelcome.getGlobalBounds()};
+	mTextInfo.setFont(mFontGUI);
+	mTextInfo.setCharacterSize(25);
+	mTextInfo.setColor(sf::Color{ 200, 60, 60, 180 });
+	mTextInfo.setString("Space Killers!\nPress enter key to play.");
+	sf::FloatRect welcomeRect{ mTextInfo.getGlobalBounds() };
 	sf::Vector2f windowSize { mWindow.getSize() };
 	sf::Vector2f welcomeCenteredPos {};
 	welcomeCenteredPos.x = float(windowSize.x / 2) - (welcomeRect.width / 2.0f);
 	welcomeCenteredPos.y = float(windowSize.y / 2) - (welcomeRect.height / 2.0f);
-	mTextWelcome.setPosition(welcomeCenteredPos);
+	mTextInfo.setPosition(welcomeCenteredPos);
 	}
 
 void Game::CreateEnemyLaser(const Enemy & enemy)

@@ -58,7 +58,15 @@ public:
 	void UpdateEnemies();
 	void UpdateLasers();
 	void UpdateExplosions();
-	void UpdateGUI(); 
+	void UpdateGUI();
+
+	void DrawBackgrounds(const sf::RenderStates & rstates);
+	void DrawPlayer(const sf::RenderStates & rstates);
+	void DrawEnemies(const sf::RenderStates & rstates);
+	void DrawLasers(const sf::RenderStates & rstates);
+	void DrawExplosions(const sf::RenderStates & rstates);
+	void DrawGUI(const sf::RenderStates & rstates);
+	void DrawInfoText(const sf::RenderStates & rstates);
 
 	void CreateEnemyLaser(const Enemy & enemy);
 	void CreatePlayerLaser();
@@ -113,7 +121,7 @@ protected:
 	// gui text
 	ScoreBoard mTextScoreBoard;
 	TimeDisplay mTextTimeDisplay;
-	sf::Text mTextWelcome;
+	sf::Text mTextInfo;
 
 	Player mPlayer;
 
