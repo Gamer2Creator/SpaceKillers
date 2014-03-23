@@ -709,6 +709,7 @@ void Game::CreateExplosionLaser(const sf::FloatRect & destroyedLaserRect )
 	exp.setScale(scales);
 	
 	mExplosions.emplace_back(std::move(exp));
+	mSoundManager.PlaySound(AudioEffect::LaserCollision, sf::Vector2f( destroyedLaserRect.left, destroyedLaserRect.top), 100.0f, 1.2f);
 	}
 
 const sf::RenderWindow & Game::GetWindow() const

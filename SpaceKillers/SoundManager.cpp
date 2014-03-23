@@ -9,6 +9,7 @@ typedef std::pair<AudioEffect, std::string> AudioEffectPair;
 std::vector<AudioEffectPair> gAudioEffects
 	{
 	{AudioEffect::LaserShot, "LaserShot.ogg"},
+	{AudioEffect::LaserCollision, "lasersCollide.ogg"},
 	{AudioEffect::Explosion, "ShipExplosion.flac"}
 	};
 

@@ -13,6 +13,7 @@
 enum class AudioEffect
 	{
 	LaserShot,
+	LaserCollision,
 	Explosion,
 	Turbo
 	};
