@@ -159,6 +159,7 @@ void Game::ChangeState( State state )
 			}
 		case State::Dead:
 			{
+			mPlayer.setPosition(0.0, -mPlayer.getGlobalBounds().height * 2.0f);
 			mTextInfo.setString("You died!\n\nEnter to play again\nEscape to exit.");
 			sf::FloatRect welcomeRect{ mTextInfo.getGlobalBounds() };
 			sf::Vector2f windowSize{ mWindow.getSize() };
@@ -369,6 +370,18 @@ void Game::UpdateEnemies()
 		spawnTrigger = mFrameTimeStamp.asSeconds() + Random::FloatBetween(.5f, 5.f);
 		}
 
+	// check for player enemy collision
+	for ( unsigned int i = 0; i < mEnemies.size(); --i )
+		{
+		if ( mEnemies[i].getGlobalBounds().intersects( mPlayer.getGlobalBounds() ) )
+			{
+			CreateExplosionShip( mEnemies[i].getGlobalBounds() );
+			CreateExplosionShip( mPlayer.getGlobalBounds() );
+			mEnemies.erase( mEnemies.begin() + i-- );
+			ChangeState(State::Dead);
+			}
+		}
+
 	// update and delete enemy code
 	for ( unsigned int i = 0; i < mEnemies.size(); ++i )
 		{
@@ -421,10 +434,9 @@ void Game::UpdateLasers()
 
 		if ( mLasersEnemy[i].getGlobalBounds().intersects(mPlayer.getGlobalBounds()) )
 			{
-			ChangeState( State::Dead );
 			CreateExplosionShip(mPlayer.getGlobalBounds());
-			mPlayer.setPosition(0.0, -mPlayer.getGlobalBounds().height * 2.0f); // move player out of bounds
 			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
+			ChangeState(State::Dead);
 			}
 		}
 
@@ -745,6 +757,11 @@ sf::Vector2f Game::GetPlayerSpawnPosition() const
 const Player & Game::GetPlayer() const
 	{
 	return mPlayer;
+	}
+
+const std::vector<Enemy> & Game::GetEnemies() const
+	{
+	return mEnemies;
 	}
 
 SoundManager & Game::GetSoundManager()

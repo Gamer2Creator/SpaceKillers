@@ -90,6 +90,7 @@ public:
 	sf::Vector2f GetPlayerSpawnPosition() const;
 
 	const Player & GetPlayer() const;
+	const std::vector< Enemy > & GetEnemies() const;
 	SoundManager & GetSoundManager();
 	ScoreBoard & GetScoreBoard();
 	const std::vector<Laser> & GetLasersPlayer() const;

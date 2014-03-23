@@ -30,6 +30,8 @@ public:
 
 	void Shoot();
 
+	EvadeDir GetEnemyEvadeDir() const;
+
 protected:
 	sf::Time mTriggerNextDecision;
 	float mEnemySpeed;

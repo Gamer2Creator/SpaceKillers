@@ -24,7 +24,7 @@ void Enemy::Update()
 	const sf::Time & frameStamp {gpGame->GetFrameTimeStamp()};
 
 	// get the direction to evade if there is nothing to evade EvadeDir::Null is returned.
-	const EvadeDir evadeDir {GetEvadeDirection()};
+	const EvadeDir laserEvadeDir {GetEvadeDirection()};
 	const sf::FloatRect enemyRect {getGlobalBounds()};
 	const sf::Vector2u windowSize {gpGame->GetWindow().getSize()};
 	const sf::FloatRect playerRect {gpGame->GetPlayer().getGlobalBounds()};
@@ -33,24 +33,37 @@ void Enemy::Update()
 	const float growWidth = 2.0f * enemyRect.width; 
 	
 	// creating the rect which describes the area of attack, which is the area the enemy is aware of and will seek the player within.
-	const sf::FloatRect areaOfAttack{enemyRect.left - (growWidth / 2.0f),
+	const sf::FloatRect areaOfAttack  {enemyRect.left - (growWidth / 2.0f),
 									 enemyRect.top,
 									 enemyRect.width + growWidth,
 									 windowSize.y - enemyRect.top };
 
 	bool isPlayerInAreaOfAttack = areaOfAttack.intersects(playerRect);
 
-	// check to evade, this trumps all decisions
+	const EvadeDir enemyEvadeDir = GetEnemyEvadeDir();
+	if ( enemyEvadeDir != EvadeDir::Null )
+		{
+		if ( enemyEvadeDir == EvadeDir::Left )
+			{
+			mDecidedDirection.x = -abs(mDecidedDirection.x);
+			}
+		if ( enemyEvadeDir == EvadeDir::Right )
+			{
+			mDecidedDirection.x = abs(mDecidedDirection.x);
+			}
+		move(mDecidedDirection * mEnemySpeed * frameDelta.asSeconds());
+		StayInBounds();
+		}
 	// if a laser is coming at this enemy it will attempt evade
-	if ( evadeDir != EvadeDir::Null )
+	else if ( laserEvadeDir != EvadeDir::Null )
 		{
 		// need to evade in a particular direction
 		sf::Vector2f evadeVec(0.0f, mDecidedDirection.y);
-		if(evadeDir == EvadeDir::Left)
+		if(laserEvadeDir == EvadeDir::Left)
 			{
 			evadeVec.x = -1.0f;
 			}
-		if(evadeDir == EvadeDir::Right)
+		if(laserEvadeDir == EvadeDir::Right)
 			{
 			evadeVec.x = 1.0f;
 			}
@@ -201,4 +214,31 @@ void Enemy::Shoot()
 		gpGame->CreateEnemyLaser(*this);
 		mTriggerCanShoot = gpGame->GetFrameTimeStamp() + sf::seconds(Random::FloatBetween(.5f, 1.0f));
 		}
+	}
+
+EvadeDir Enemy::GetEnemyEvadeDir() const
+	{
+	auto & enemyVec = gpGame->GetEnemies();
+
+	const sf::FloatRect & thisRect = getGlobalBounds();
+
+	for ( auto & enemy : enemyVec )
+		{
+		if ( &enemy == this )
+			continue;
+
+		const sf::FloatRect & otherRect = enemy.getGlobalBounds();
+
+		if ( enemy.getGlobalBounds().intersects(getGlobalBounds()) )
+			{
+			RelativeSide side = GetSideLR(thisRect, otherRect);
+			if ( side == RelativeSide::Right )
+				return EvadeDir::Left;
+			if ( side == RelativeSide::Left )
+				return EvadeDir::Right;
+
+			return EvadeDir::Null;
+			}
+		}
+	return EvadeDir::Null;
 	}
