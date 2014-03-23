@@ -13,6 +13,12 @@ float Random::FloatBetween( float low, float high )
 	return dist(gTwister);
 	}
 
+long long Random::LongBetween( long long low, long long high )
+	{
+	std::uniform_int_distribution<long long> dist{low,high};
+	return dist(gTwister);
+	}
+
 Game * gpGame = nullptr;
 
 const std::string & Game::GetTexturesFolder()
@@ -25,6 +31,12 @@ const std::string & Game::GetFontsFolder()
 	{
 	static const std::string fontsFolder {"../Resources/Fonts/"};
 	return fontsFolder;
+	}
+
+const std::string & Game::GetSoundsFolder()
+	{
+	static const std::string soundsFolder {"../Resources/Sounds/"};
+	return soundsFolder;
 	}
 
 Game::Game()
@@ -46,6 +58,7 @@ Game::Game()
 	mWindow.create(sf::VideoMode{800, 600}, "Space Killers");
 
 	LoadGame();
+	ChangeState(State::MainMenu);
 	}
 
 Game::~Game()
@@ -117,6 +130,49 @@ void Game::DrawState()
 		}
 	}
 
+void Game::ChangeState( State state )
+	{
+	// this is where setup for states is done.
+	switch ( state )
+		{
+		case State::MainMenu:
+			{
+			ResetGame();
+			mTextInfo.setString("Space Killers!\nPress enter key to play.");
+			sf::FloatRect welcomeRect{ mTextInfo.getGlobalBounds() };
+			sf::Vector2f windowSize{ mWindow.getSize() };
+			sf::Vector2f welcomeCenteredPos{};
+			welcomeCenteredPos.x = float(windowSize.x / 2) - (welcomeRect.width / 2.0f);
+			welcomeCenteredPos.y = float(windowSize.y / 2) - (welcomeRect.height / 2.0f);
+			mTextInfo.setPosition(welcomeCenteredPos);
+			break;
+			}
+		case State::Playing:
+			{
+			if ( mCurrentState == State::Dead )
+				{
+				ResetGame();
+				break;
+				}
+			mSoundManager.SetMusic( AudioMusic::Playing );
+			break;
+			}
+		case State::Dead:
+			{
+			mTextInfo.setString("You died!\n\nEnter to play again\nEscape to exit.");
+			sf::FloatRect welcomeRect{ mTextInfo.getGlobalBounds() };
+			sf::Vector2f windowSize{ mWindow.getSize() };
+			sf::Vector2f welcomeCenteredPos{};
+			welcomeCenteredPos.x = float(windowSize.x / 2) - (welcomeRect.width / 2.0f);
+			welcomeCenteredPos.y = float(windowSize.y / 2) - (welcomeRect.height / 2.0f);
+			mTextInfo.setPosition(welcomeCenteredPos);
+			break;
+			}
+		}
+
+	mCurrentState = state;
+	}
+
 void Game::UpdateStatePlaying()
 	{
 	UpdateBackground();
@@ -145,8 +201,7 @@ void Game::UpdateStateMainMenu()
 	{
 	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Return ) )
 		{
-		ResetGame();
-		mCurrentState = State::Playing;
+		ChangeState( State::Playing );
 		}
 	float frameStamp = mFrameTimeStamp.asSeconds();
 	sf::Color textColor = mTextInfo.getColor();
@@ -169,8 +224,7 @@ void Game::UpdateStateDead()
 	{
 	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Return ) )
 		{
-		ResetGame();
-		mCurrentState = State::Playing;
+		ChangeState( State::Playing );
 		}
 	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Escape ) )
 		{
@@ -181,7 +235,6 @@ void Game::UpdateStateDead()
 	sf::Color textColor = mTextInfo.getColor();
 	textColor.a = char(abs(255.0f * sin(frameStamp)));
 	mTextInfo.setColor(textColor);
-	mTextInfo.setString("You died!\n\nEnter to play again\nEscape to exit.");
 
 	UpdateBackground();
 	UpdateEnemies();
@@ -236,8 +289,10 @@ void Game::MainLoop()
 			}
 
 		DrawState();
+		mSoundManager.Update();
+
 		mWindow.display();
-		mWindow.clear(sf::Color(100, 100, 100, 255));
+  		mWindow.clear(sf::Color(100, 100, 100, 255));
 		}
 	}
 
@@ -366,7 +421,7 @@ void Game::UpdateLasers()
 
 		if ( mLasersEnemy[i].getGlobalBounds().intersects(mPlayer.getGlobalBounds()) )
 			{
-			mCurrentState = State::Dead;
+			ChangeState( State::Dead );
 			CreateExplosionShip(mPlayer.getGlobalBounds());
 			mPlayer.setPosition(0.0, -mPlayer.getGlobalBounds().height * 2.0f); // move player out of bounds
 			mLasersEnemy.erase(mLasersEnemy.begin() + i--);
@@ -571,13 +626,7 @@ void Game::LoadGame()
 	mTextInfo.setFont(mFontGUI);
 	mTextInfo.setCharacterSize(25);
 	mTextInfo.setColor(sf::Color{ 200, 60, 60, 180 });
-	mTextInfo.setString("Space Killers!\nPress enter key to play.");
-	sf::FloatRect welcomeRect{ mTextInfo.getGlobalBounds() };
-	sf::Vector2f windowSize { mWindow.getSize() };
-	sf::Vector2f welcomeCenteredPos {};
-	welcomeCenteredPos.x = float(windowSize.x / 2) - (welcomeRect.width / 2.0f);
-	welcomeCenteredPos.y = float(windowSize.y / 2) - (welcomeRect.height / 2.0f);
-	mTextInfo.setPosition(welcomeCenteredPos);
+	
 	}
 
 void Game::CreateEnemyLaser(const Enemy & enemy)
@@ -598,6 +647,7 @@ void Game::CreateEnemyLaser(const Enemy & enemy)
 
 	enemyLaser.setPosition( laserPos );
 	mLasersEnemy.emplace_back(std::move(enemyLaser));
+	mSoundManager.PlaySound(AudioEffect::LaserShot, laserPos, 80.0f, 1.2f);
 	}
 
 void Game::CreatePlayerLaser()
@@ -617,6 +667,8 @@ void Game::CreatePlayerLaser()
 	startingLaserPos.y = playerRect.top - laserRect.height - 1.f;
 	laser.setPosition( startingLaserPos );
 	mLasersPlayer.emplace_back( std::move( laser ) );
+
+	mSoundManager.PlaySound( AudioEffect::LaserShot, startingLaserPos, 80.0f, 0.85f );
 	}
 
 void Game::CreateExplosionShip(const sf::FloatRect & destroyedObjectRect)
@@ -637,6 +689,7 @@ void Game::CreateExplosionShip(const sf::FloatRect & destroyedObjectRect)
 	exp.setScale(scales);
 	
 	mExplosions.emplace_back(std::move(exp));
+	mSoundManager.PlaySound(AudioEffect::Explosion, sf::Vector2f(destroyedObjectRect.left, destroyedObjectRect.top), 100.0f);
 	}
 
 void Game::CreateExplosionLaser(const sf::FloatRect & destroyedLaserRect )
@@ -691,6 +744,11 @@ sf::Vector2f Game::GetPlayerSpawnPosition() const
 const Player & Game::GetPlayer() const
 	{
 	return mPlayer;
+	}
+
+SoundManager & Game::GetSoundManager()
+	{
+	return mSoundManager;
 	}
 
 ScoreBoard & Game::GetScoreBoard()

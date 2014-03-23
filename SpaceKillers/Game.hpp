@@ -6,9 +6,12 @@
 #include "Explosion.hpp"
 #include "ScoreBoard.hpp"
 #include "TimeDisplay.hpp"
+#include "SoundManager.hpp"
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
+
+#include <limits>
 
 enum class State
 	{
@@ -22,6 +25,7 @@ enum class State
 namespace Random
 {
 float FloatBetween( float low = 0.0f, float high = 1.0f );
+long long LongBetween( long long low = 0, long long high = std::numeric_limits<long long>::max() );
 } 
 
 class Game
@@ -40,6 +44,7 @@ public:
 	// state code
 	void UpdateState();
 	void DrawState();
+	void ChangeState( State state );
 
 	// Main Menu state
 	void UpdateStateMainMenu();
@@ -75,6 +80,7 @@ public:
 
 	static const std::string & GetTexturesFolder();
 	static const std::string & GetFontsFolder();
+	static const std::string & GetSoundsFolder();
 
 	const sf::RenderWindow & GetWindow() const;
 	sf::Time GetFrameTimeStamp() const;
@@ -84,6 +90,7 @@ public:
 	sf::Vector2f GetPlayerSpawnPosition() const;
 
 	const Player & GetPlayer() const;
+	SoundManager & GetSoundManager();
 	ScoreBoard & GetScoreBoard();
 	const std::vector<Laser> & GetLasersPlayer() const;
 
@@ -129,6 +136,8 @@ protected:
 	std::vector< Laser > mLasersPlayer;
 	std::vector< Laser > mLasersEnemy;
 	std::vector< Explosion > mExplosions;
+
+	SoundManager mSoundManager;
 };
 
 extern Game * gpGame;
