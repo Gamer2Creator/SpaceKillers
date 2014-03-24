@@ -29,7 +29,9 @@ SoundManager::SoundManager()
 
 SoundManager::~SoundManager()
 	{
-
+	mAudioPlaying.clear();
+	mAudioBuffers.clear();
+	mMusic.stop();
 	}
 
 void SoundManager::PlaySound( AudioEffect effect, const sf::Vector2f & pos, const float volume, const float pitch )

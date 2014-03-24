@@ -58,6 +58,10 @@ public:
 	void UpdateStateDead();
 	void DrawStateDead();
 
+	// Paused state
+	void UpdateStatePaused();
+	void DrawStatePaused();
+
 	void UpdateBackground();
 	void UpdatePlayer();
 	void UpdateEnemies();

@@ -96,6 +96,11 @@ void Game::UpdateState()
 			UpdateStateDead();
 			break;
 			}
+		case State::Paused:
+			{
+			UpdateStatePaused();
+			break;
+			}
 		default:
 			{
 			throw std::runtime_error("Unknown state, " + std::to_string(static_cast<int>(mCurrentState)) );
@@ -121,6 +126,11 @@ void Game::DrawState()
 		case State::Dead:
 			{
 			DrawStateDead();
+			break;
+			}
+		case State::Paused:
+			{
+			DrawStatePaused();
 			break;
 			}
 		default:
@@ -154,7 +164,15 @@ void Game::ChangeState( State state )
 				ResetGame();
 				break;
 				}
-			mSoundManager.SetMusic( AudioMusic::Playing );
+			if ( mCurrentState == State::Paused )
+				{
+				break;
+				}
+			if ( mCurrentState == State::MainMenu )
+				{
+				mSoundManager.SetMusic( AudioMusic::Playing );
+				break;
+				}
 			break;
 			}
 		case State::Dead:
@@ -169,6 +187,20 @@ void Game::ChangeState( State state )
 			mTextInfo.setPosition(welcomeCenteredPos);
 			break;
 			}
+		case State::Paused:
+			{
+			sf::Color color = mTextInfo.getColor();
+			color.a = 255;
+			mTextInfo.setColor(color);
+			mTextInfo.setString("Press Enter to unpause.");
+			sf::FloatRect infoRect{ mTextInfo.getGlobalBounds() };
+			sf::Vector2f windowSize{ mWindow.getSize() };
+			sf::Vector2f infoCenteredPos{};
+			infoCenteredPos.x = float(windowSize.x / 2) - (infoRect.width / 2.0f);
+			infoCenteredPos.y = float(windowSize.y / 2) - (infoRect.height / 2.0f);
+			mTextInfo.setPosition(infoCenteredPos);
+			break;
+			}
 		}
 
 	mCurrentState = state;
@@ -176,6 +208,11 @@ void Game::ChangeState( State state )
 
 void Game::UpdateStatePlaying()
 	{
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Pause ) )
+		{
+		ChangeState(State::Paused);
+		return;
+		}
 	UpdateBackground();
 	UpdatePlayer();
 	UpdateEnemies();
@@ -255,6 +292,33 @@ void Game::DrawStateDead()
 	DrawInfoText(rstates);
 	}
 
+void Game::UpdateStatePaused()
+	{
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Return ) )
+		{
+		ChangeState(State::Playing);
+		}
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Escape ) )
+		{
+		mWindow.close();
+		}
+	}
+
+void Game::DrawStatePaused()
+	{
+	sf::RenderStates rstates{ sf::BlendMode::BlendAlpha };
+
+	DrawBackgrounds(rstates);
+	DrawPlayer(rstates);
+	DrawEnemies(rstates);
+	DrawLasers(rstates);
+	DrawExplosions(rstates);
+	DrawGUI(rstates);
+
+	DrawGUI(rstates);
+	DrawInfoText(rstates);
+	}
+
 void Game::MainLoop()
 	{
 	sf::Event evt{};
@@ -293,7 +357,7 @@ void Game::MainLoop()
 		mSoundManager.Update();
 
 		mWindow.display();
-  		mWindow.clear(sf::Color(100, 100, 100, 255));
+		mWindow.clear(sf::Color(100, 100, 100, 255));
 		}
 	}
 
