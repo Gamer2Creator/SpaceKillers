@@ -18,10 +18,6 @@ template<typename Id, typename Resource> void ResourceLoader<typename Id, typena
 template<typename Id, typename Resource> Resource& ResourceLoader<typename Id, typename Resource>::Get(Id id)
 	{
 	auto found = resources.find(id);
-	if (found == resources.end())
-		{
-		throw std::runtime_error("no such Id in Resources found"); 
-		}
+	if (found == resources.end()) throw std::runtime_error("no such Id in Resources found"); 
 	else return *found->second; 
-
 	}
