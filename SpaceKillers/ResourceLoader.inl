@@ -20,7 +20,7 @@ template<typename Id, typename Resource> Resource& ResourceLoader<typename Id, t
 	auto found = resources.find(id);
 	if (found == resources.end())
 		{
-		//error handling
+		throw std::runtime_error("no such Id in Resources found"); 
 		}
 	else return *found->second; 
 
