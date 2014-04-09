@@ -7,6 +7,7 @@
 #include "ScoreBoard.hpp"
 #include "TimeDisplay.hpp"
 #include "SoundManager.hpp"
+#include "ResourceLoader.h"
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -112,6 +113,9 @@ protected:
 	float mBackgroundSpeed;
 
 	// textures
+
+	ResourceLoader<TextureAsset, sf::Texture> texLoader; 
+
 	sf::Texture mBackgroundTex1;
 	sf::Texture mBackgroundTex2;
 

@@ -103,9 +103,13 @@
     <ClInclude Include="Laser.hpp" />
     <ClInclude Include="MathUtils.hpp" />
     <ClInclude Include="Player.hpp" />
+    <ClInclude Include="ResourceLoader.h" />
     <ClInclude Include="ScoreBoard.hpp" />
     <ClInclude Include="SoundManager.hpp" />
     <ClInclude Include="TimeDisplay.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ResourceLoader.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

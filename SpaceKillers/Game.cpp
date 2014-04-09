@@ -420,7 +420,7 @@ void Game::UpdateEnemies()
 		if(mEnemies.size() < maxEnemies )
 			{
 			Enemy newEnemy{};
-			newEnemy.setTexture(mEnemyShipTex);
+			newEnemy.setTexture(texLoader.Get(TextureAsset::EnemyShip));
 			newEnemy.setScale(0.25f, 0.25f);
 			sf::FloatRect enemyRect {newEnemy.getGlobalBounds()};
 
@@ -645,44 +645,20 @@ void Game::LoadGame()
 	mBackground2.setTexture(mBackgroundTex2);
 	mBackground2.setPosition(mBackground1.getPosition() + sf::Vector2f(0.0f, float(mBackground1.getGlobalBounds().height)));
 
-	// load player texture
-	if (!mPlayerShipTex.loadFromFile(GetTexturesFolder() + "Spaceship_tut.png"))
-		{
-		throw std::runtime_error("Failed to load image.");
-		}
-
+	// load player texture in ResourceLoader
+	texLoader.LoadResource(TextureAsset::PlayerShip, GetTexturesFolder() + "Spaceship_tut.png");
+	
 	// setup player sprites texture scale and position
-	mPlayer.setTexture(mPlayerShipTex);
+	mPlayer.setTexture(texLoader.Get(TextureAsset::PlayerShip));
 	mPlayer.setScale(sf::Vector2f{ 0.25f, 0.25f } );
 	mPlayer.setPosition(GetPlayerSpawnPosition());
 
-	// load players blue laser texture.
-	if (!mLaserBlueTex.loadFromFile(GetTexturesFolder() + "laserBlueSmaller.png"))
-		{
-		throw std::runtime_error("Failed to load image.");
-		}
-
-	if (!mLaserRedTex.loadFromFile(GetTexturesFolder() + "laserRedSmaller.png"))
-		{
-		throw std::runtime_error("Failed to load image.");
-		}
-
-	// load enemies texture
-	if (!mEnemyShipTex.loadFromFile(GetTexturesFolder() + "Titan.png"))
-		{
-		throw std::runtime_error("Failed to load image.");
-		}
-
-	if (!mExplosionShipTex.loadFromFile(GetTexturesFolder() + "explosion2.png"))
-		{
-		throw std::runtime_error("Failed to load image.");
-		}
-
-	if (!mExplosionLaserTex.loadFromFile(GetTexturesFolder() + "boom3.png"))
-		{
-		throw std::runtime_error("Failed to load image.");
-		}
-
+	texLoader.LoadResource(TextureAsset::LaserBlue, GetTexturesFolder() + "laserBlueSmaller.png");
+	texLoader.LoadResource(TextureAsset::LaserRed, GetTexturesFolder() + "laserRedSmaller.png");
+	texLoader.LoadResource(TextureAsset::EnemyShip, GetTexturesFolder() + "Titan.png");
+	texLoader.LoadResource(TextureAsset::ExplosionShip, GetTexturesFolder() + "explosion2.png");
+	texLoader.LoadResource(TextureAsset::ExplosionLaser, GetTexturesFolder() + "boom3.png");
+	
 	// load font
 	if (!mFontGUI.loadFromFile(GetFontsFolder() + "PressStart2P.ttf"))
 		{
@@ -711,7 +687,7 @@ void Game::CreateEnemyLaser(const Enemy & enemy)
 	sf::Vector2f laserPos{};
 
 	Laser enemyLaser{};
-	enemyLaser.setTexture(mLaserRedTex);
+	enemyLaser.setTexture(texLoader.Get(TextureAsset::LaserRed));
 	enemyLaser.setScale(0.25f, 0.25f);
 	sf::FloatRect laserRect {enemyLaser.getGlobalBounds()};
 
@@ -732,7 +708,7 @@ void Game::CreatePlayerLaser()
 	sf::Vector2f playerHalfWidths { GetHalfWidths(playerRect) };
 
 	Laser laser {};
-	laser.setTexture(mLaserBlueTex);
+	laser.setTexture(texLoader.Get(TextureAsset::LaserBlue));
 	laser.setScale(0.25f,0.25f);
 
 	sf::FloatRect laserRect { laser.getGlobalBounds() };
@@ -751,7 +727,7 @@ void Game::CreateExplosionShip(const sf::FloatRect & destroyedObjectRect)
 	{
 	Explosion exp{ sf::seconds(1.5f), 4, 4, 64 };
 
-	exp.setTexture( mExplosionShipTex );
+	exp.setTexture( texLoader.Get(TextureAsset::ExplosionShip ));
 	exp.setTextureRect( sf::IntRect(0,0, 64, 64) );
 	exp.setPosition(destroyedObjectRect.left, destroyedObjectRect.top);
 	const sf::FloatRect & expRect {exp.getGlobalBounds()};
@@ -772,7 +748,7 @@ void Game::CreateExplosionLaser(const sf::FloatRect & destroyedLaserRect )
 	{
 	Explosion exp {sf::seconds(1.0f), 8, 8, 1024 / 8 };
 
-	exp.setTexture( mExplosionLaserTex );
+	exp.setTexture( texLoader.Get(TextureAsset::ExplosionLaser) );
 	exp.setTextureRect( sf::IntRect(0,0, 1024/8, 1024/8) );
 	exp.setPosition( destroyedLaserRect.left, destroyedLaserRect.top );
 	const sf::FloatRect & expRect {exp.getGlobalBounds()};

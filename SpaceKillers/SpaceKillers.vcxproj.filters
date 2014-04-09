@@ -71,5 +71,13 @@
     <ClInclude Include="SoundManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ResourceLoader.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
