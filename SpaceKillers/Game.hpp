@@ -119,13 +119,7 @@ protected:
 	sf::Texture mBackgroundTex1;
 	sf::Texture mBackgroundTex2;
 
-	sf::Texture mPlayerShipTex;
-	sf::Texture mEnemyShipTex;
-	sf::Texture mLaserBlueTex;
-	sf::Texture mLaserRedTex;
 
-	sf::Texture mExplosionShipTex;
-	sf::Texture mExplosionLaserTex;
 
 	// fonts
 	sf::Font mFontGUI;
